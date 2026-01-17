@@ -1,0 +1,75 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    min-height: 100vh;
+    padding: 40px;
+
+    background-image: url("bg_dep.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px;
+}
+
+.card {
+    background: rgba(255, 255, 255, 0.92); /* trắng mờ */
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+
+    backdrop-filter: blur(4px);
+}
+
+
+.title {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 10px;
+}
+
+.main-value {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+}
+
+.number {
+    font-size: 36px;
+    font-weight: 700;
+}
+
+.unit {
+    font-size: 16px;
+    color: #6b7280;
+}
+
+.trend {
+    margin-top: 8px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* TĂNG */
+.card.up .number,
+.card.up .trend {
+    color: #16a34a;
+}
+
+/* GIẢM */
+.card.down .number,
+.card.down .trend {
+    color: #dc2626;
+}

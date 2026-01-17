@@ -1,0 +1,115 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    height: 100vh;
+
+    background-image: url("bg_dep.jpg");
+    background-size: cover;        /* phủ kín màn hình */
+    background-position: center;   /* canh giữa */
+    background-repeat: no-repeat;
+    background-attachment: fixed;  /* đứng yên khi scroll */
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.auth-box {
+    width: 380px;
+    padding: 35px;
+    background: #020617;
+    border-radius: 16px;
+    color: #fff;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.auth-box h2 {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.auth-box input {
+    width: 100%;
+    padding: 14px;
+    margin-bottom: 16px;
+    border-radius: 8px;
+    border: none;
+}
+
+.auth-box button {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: none;
+    background: #2563eb;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.auth-box button:hover {
+    background: #1d4ed8;
+}
+
+.switch, .back {
+    margin-top: 16px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.switch span {
+    color: #60a5fa;
+    cursor: pointer;
+}
+
+.back a {
+    color: #9ca3af;
+    text-decoration: none;
+}
+
+/* nút back góc trái */
+.back-btn {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+
+    width: 42px;
+    height: 42px;
+
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.back-btn img {
+    width: 22px;
+    height: 22px;
+}
+
+.back-btn:hover {
+    background: rgba(0, 0, 0, 0.6);
+}
+
+/* ===== ERROR MESSAGE ===== */
+.error-msg {
+    margin-top: 8px;
+    font-size: 13px;
+    color: #ef4444;      /* đỏ */
+    text-align: left;
+    min-height: 16px;    /* giữ layout không giật */
+}
+
+
+

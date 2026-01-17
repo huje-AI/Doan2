@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Giám sát điện nước</title>
+    <link rel="stylesheet" href="dien_nuoc.css" />
+  </head>
+  <body>
+    <div class="grid">
+      <div class="card" id="energyCard">
+        <div class="title">Điện năng</div>
+        <div class="main-value">
+          <span class="number" id="energy">0</span>
+          <span class="unit">kWh</span>
+        </div>
+        <div class="trend" id="energyTrend"></div>
+      </div>
+
+      <div class="card" id="voltageCard">
+        <div class="title">Điện áp</div>
+        <div class="main-value">
+          <span class="number" id="voltage">0</span>
+          <span class="unit">V</span>
+        </div>
+        <div class="trend" id="voltageTrend"></div>
+      </div>
+
+      <div class="card" id="currentCard">
+        <div class="title">Dòng điện</div>
+        <div class="main-value">
+          <span class="number" id="current">0</span>
+          <span class="unit">A</span>
+        </div>
+        <div class="trend" id="currentTrend"></div>
+      </div>
+
+      <div class="card" id="powerCard">
+        <div class="title">Công suất</div>
+        <div class="main-value">
+          <span class="number" id="power">0</span>
+          <span class="unit">W</span>
+        </div>
+        <div class="trend" id="powerTrend"></div>
+      </div>
+
+      <div class="card" id="flowCard">
+        <div class="title">Lưu lượng nước</div>
+        <div class="main-value">
+          <span class="number" id="flow">0</span>
+          <span class="unit">mL/s</span>
+        </div>
+        <div class="trend" id="flowTrend"></div>
+      </div>
+
+      <div class="card" id="waterCard">
+        <div class="title">Tổng nước</div>
+        <div class="main-value">
+          <span class="number" id="water">0</span>
+          <span class="unit">m³</span>
+        </div>
+        <div class="trend" id="waterTrend"></div>
+      </div>
+    </div>
+
+    <!-- FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <script>
+      firebase.initializeApp({
+        apiKey: "AIzaSyD9Vmq5O9sVpOsTtQ3qNIyggsIaobNfBMw",
+        databaseURL: "https://do-an-high-default-rtdb.firebaseio.com/",
+      });
+
+      let oldData = {};
+
+      firebase.auth().onAuthStateChanged((user) => {
+        if (!user) {
+          console.warn("Chưa đăng nhập");
+          return;
+        }
+
+        const uid = user.uid;
+        const dbRef = firebase.database().ref("users/" + uid);
+
+        dbRef.on("value", (snap) => {
+          const d = snap.val();
+          if (!d) return;
+
+          console.log("Firebase data:", d); // 👈 test
+
+          updateCard("energy", d.energy ?? 0, "kWh");
+          updateCard("voltage", d.voltage ?? 0, "V");
+          updateCard("current", d.current ?? 0, "A");
+          updateCard("power", d.power ?? 0, "W");
+          updateCard("flow", d.flow_ml_s ?? 0, "mL/s");
+          updateCard("water", d.water_m3 ?? 0, "m³");
+
+          oldData = d;
+        });
+      });
+
+      function updateCard(key, value, unit) {
+        const numEl = document.getElementById(key);
+        const trendEl = document.getElementById(key + "Trend");
+        const card = document.getElementById(key + "Card");
+
+        const oldVal = oldData[key] ?? value;
+        const diff = value - oldVal;
+
+        numEl.innerText = value;
+        card.classList.remove("up", "down");
+
+        if (diff > 0) {
+          card.classList.add("up");
+          trendEl.innerHTML = `▲ +${diff.toFixed(2)} ${unit}`;
+        } else if (diff < 0) {
+          card.classList.add("down");
+          trendEl.innerHTML = `▼ ${diff.toFixed(2)} ${unit}`;
+        } else {
+          trendEl.innerHTML = "— Không đổi";
+        }
+      }
+
+      firebase.auth().onAuthStateChanged((user) => {
+        if (!user) return;
+        const uid = user.uid;
+
+        let threshold = 10;
+        let soundEnabled = false;
+
+        const audio = document.getElementById("alertSound");
+
+        // load setting realtime
+        firebase
+          .database()
+          .ref(`users/${uid}/settings`)
+          .on("value", (snap) => {
+            const s = snap.val();
+            if (!s) return;
+            threshold = s.current_threshold ?? 10;
+            soundEnabled = s.sound_enabled ?? false;
+          });
+
+        let lastAlertTime = 0; // chống spam
+
+        firebase
+          .database()
+          .ref(`users/${uid}/current`)
+          .on("value", (snap) => {
+            const current = snap.val();
+            if (current == null) return;
+
+            if (soundEnabled && current > threshold) {
+              const now = Date.now();
+
+              // ⛔ chỉ cảnh báo 1 lần / 10 giây
+              if (now - lastAlertTime < 10000) return;
+              lastAlertTime = now;
+
+              // 🔊 phát âm thanh
+              audio.currentTime = 0;
+              audio.play().catch(() => {});
+
+              // 📝 ghi log vượt ngưỡng
+              firebase
+                .database()
+                .ref(`users/${uid}/logs/alerts/${now}`)
+                .set({
+                  current,
+                  threshold,
+                  time: new Date().toLocaleString("vi-VN"),
+                });
+            }
+          });
+      });
+
+      let lastMonthlyKey = null;
+
+      setInterval(() => {
+        firebase
+          .database()
+          .ref(`users/${uid}/settings`)
+          .once("value")
+          .then((snap) => {
+            const cfg = snap.val();
+            if (!cfg || !cfg.close_at) return;
+
+            const now = Date.now();
+
+            // so theo phút (±30s)
+            if (Math.abs(now - cfg.close_at) <= 30000) {
+              const monthKey = new Date(cfg.close_at).toISOString().slice(0, 7);
+
+              if (lastMonthlyKey === monthKey) return;
+              lastMonthlyKey = monthKey;
+
+              firebase
+                .database()
+                .ref(`users/${uid}`)
+                .once("value")
+                .then((dataSnap) => {
+                  const d = dataSnap.val();
+                  if (!d) return;
+
+                  firebase
+                    .database()
+                    .ref(`users/${uid}/notifications/monthly/${monthKey}`)
+                    .set({
+                      type: "monthly",
+                      text: `📊 Chốt điện & nước tháng ${monthKey}
+🔌 Điện năng: ${d.energy ?? 0} kWh
+💧 Tổng nước: ${d.water_m3 ?? 0} m³`,
+                      time: new Date(cfg.close_at).toISOString(),
+                      unread: true,
+                    });
+                });
+            }
+          });
+      }, 60000);
+    </script>
+
+    <audio
+      id="alertSound"
+      src="sounds/Cause I Love You.mp3"
+      preload="auto"
+    ></audio>
+  </body>
+</html>

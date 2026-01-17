@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Đồ thị công suất & lưu lượng nước</title>
+
+    <link rel="stylesheet" href="chart.css" />
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  </head>
+  <body>
+    <div class="chart-wrapper">
+      <canvas id="powerWaterChart"></canvas>
+    </div>
+
+    <div class="noti-container">
+      <div class="noti-header">
+        <div class="left">
+          <h2>Notifications</h2>
+          <span id="unreadCount" class="badge">0</span>
+        </div>
+        <button onclick="markAllRead()">Mark all as read</button>
+      </div>
+
+      <div class="noti-list" id="notiList">
+        <!-- notifications -->
+      </div>
+    </div>
+
+    <!-- FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+      /* ===== FIREBASE CONFIG ===== */
+      firebase.initializeApp({
+        apiKey: "AIzaSyD9Vmq5O9sVpOsTtQ3qNIyggsIaobNfBMw",
+        databaseURL: "https://do-an-high-default-rtdb.firebaseio.com/",
+      });
+
+      /* ===== CHART INIT ===== */
+      const ctx = document.getElementById("powerWaterChart").getContext("2d");
+
+      /* nền canvas để khỏi bị mờ */
+      const canvasBgPlugin = {
+        id: "bg",
+        beforeDraw: (chart) => {
+          const { ctx, width, height } = chart;
+          ctx.save();
+          ctx.globalCompositeOperation = "destination-over";
+          ctx.fillStyle = "#ffffff";
+          ctx.fillRect(0, 0, width, height);
+          ctx.restore();
+        },
+      };
+
+      const chart = new Chart(ctx, {
+        type: "line",
+        plugins: [canvasBgPlugin],
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: "Công suất (W)",
+              data: [],
+              borderColor: "#2563eb",
+              backgroundColor: "rgba(37,99,235,0.12)",
+              yAxisID: "yPower",
+              tension: 0.35,
+              pointRadius: 0,
+            },
+            {
+              label: "Lưu lượng nước (mL/s)",
+              data: [],
+              borderColor: "#16a34a",
+              backgroundColor: "rgba(22,163,74,0.12)",
+              yAxisID: "yFlow",
+              tension: 0.35,
+              pointRadius: 0,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: false,
+          interaction: {
+            mode: "index",
+            intersect: false,
+          },
+          scales: {
+            x: {
+              ticks: { color: "#374151" },
+              grid: { color: "rgba(0,0,0,0.05)" },
+            },
+            yPower: {
+              min: 0,
+              max: 1000,
+              ticks: { color: "#374151" },
+              title: {
+                display: true,
+                text: "Công suất (W)",
+              },
+            },
+            yFlow: {
+              min: 0,
+              max: 2000,
+              position: "right",
+              grid: { drawOnChartArea: false },
+              ticks: { color: "#374151" },
+              title: {
+                display: true,
+                text: "Lưu lượng (mL/s)",
+              },
+            },
+          },
+          plugins: {
+            legend: {
+              labels: {
+                color: "#111827",
+                font: { weight: "600" },
+              },
+            },
+          },
+        },
+      });
+
+      /* ===== REALTIME UPDATE – MỖI 1 GIÂY ===== */
+      firebase.auth().onAuthStateChanged((user) => {
+        if (!user) return;
+
+        const uid = user.uid;
+        const dbRef = firebase.database().ref("users/" + uid);
+
+        dbRef.on("value", (snap) => {
+          const d = snap.val();
+          if (!d) return;
+
+          const now = new Date();
+          const label =
+            now.getHours() +
+            ":" +
+            String(now.getMinutes()).padStart(2, "0") +
+            ":" +
+            String(now.getSeconds()).padStart(2, "0");
+
+          chart.data.labels.push(label);
+          chart.data.datasets[0].data.push(d.power ?? 0);
+          chart.data.datasets[1].data.push(d.flow_ml_s ?? 0);
+
+          // giữ tối đa 120 điểm (~2 phút)
+          if (chart.data.labels.length > 120) {
+            chart.data.labels.shift();
+            chart.data.datasets.forEach((ds) => ds.data.shift());
+          }
+
+          chart.update();
+        });
+      });
+    </script>
+
+    <script>
+      firebase.auth().onAuthStateChanged((user) => {
+        if (!user) return;
+
+        const uid = user.uid;
+        const notiList = document.getElementById("notiList");
+        const badge = document.getElementById("unreadCount");
+
+        let notifications = [];
+
+        /* ===== LOAD MONTHLY LOG ===== */
+        firebase
+          .database()
+          .ref(`users/${uid}/logs/monthly`)
+          .on("value", (snap) => {
+            notifications = notifications.filter((n) => n.type !== "monthly");
+
+            snap.forEach((child) => {
+              const d = child.val();
+              notifications.push({
+                id: child.key,
+                type: "monthly",
+                unread: true,
+                time: d.time,
+                text:
+                  `📊 Chốt điện & nước<br>` +
+                  `🔌 Điện năng: <b>${d.energy}</b> kWh<br>` +
+                  `💧 Tổng nước: <b>${d.water_m3}</b> m³`,
+              });
+            });
+
+            render();
+          });
+
+        /* ===== LOAD ALERT LOG ===== */
+        firebase
+          .database()
+          .ref(`users/${uid}/logs/alerts`)
+          .limitToLast(20)
+          .on("value", (snap) => {
+            notifications = notifications.filter((n) => n.type !== "alert");
+
+            snap.forEach((child) => {
+              const d = child.val();
+              notifications.push({
+                id: child.key,
+                type: "alert",
+                unread: true,
+                time: d.time,
+                text:
+                  `⚡ <b>Vượt ngưỡng dòng điện</b><br>` +
+                  `Dòng điện: <b>${d.current}</b> A<br>` +
+                  `Ngưỡng: <b>${d.threshold}</b> A`,
+              });
+            });
+
+            render();
+          });
+
+        /* ===== RENDER UI ===== */
+        function render() {
+          notiList.innerHTML = "";
+          let unread = 0;
+
+          notifications
+            .sort((a, b) => new Date(b.time) - new Date(a.time))
+            .forEach((n) => {
+              if (n.unread) unread++;
+
+              const div = document.createElement("div");
+              div.className = "noti-item" + (n.unread ? " unread" : "");
+
+              div.innerHTML = `
+                    <div class="dot">${n.unread ? "●" : ""}</div>
+                    <div class="content">
+                        <div class="text">${n.text}</div>
+                        <div class="time">${n.time}</div>
+                    </div>
+                    ${
+                      n.type === "alert"
+                        ? `<button class="del" data-id="${n.id}">✖</button>`
+                        : ""
+                    }
+                `;
+
+              div.onclick = () => {
+                n.unread = false;
+                render();
+              };
+
+              if (n.type === "alert") {
+                div.querySelector(".del").onclick = (e) => {
+                  e.stopPropagation();
+                  firebase
+                    .database()
+                    .ref(`users/${uid}/logs/alerts/${n.id}`)
+                    .remove();
+                };
+              }
+
+              notiList.appendChild(div);
+            });
+
+          badge.innerText = unread;
+          badge.style.display = unread ? "inline-block" : "none";
+        }
+
+        /* ===== MARK ALL READ ===== */
+        window.markAllRead = () => {
+          notifications.forEach((n) => (n.unread = false));
+          render();
+        };
+      });
+    </script>
+  </body>
+</html>

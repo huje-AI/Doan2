@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Đăng nhập / Đăng ký</title>
+    <link rel="stylesheet" href="auth.css" />
+  </head>
+  <body>
+    <div class="auth-container">
+      <div class="auth-box">
+        <h2 id="title">Đăng nhập</h2>
+
+        <input type="email" id="email" placeholder="Email" />
+        <input type="password" id="password" placeholder="Mật khẩu" />
+
+        <!-- THÔNG BÁO LỖI -->
+        <p id="errorMsg" class="error-msg"></p>
+
+        <button id="submitBtn" onclick="handleSubmit()">Đăng nhập</button>
+
+        <p class="switch">
+          Chưa có tài khoản?
+          <span onclick="switchForm()">Đăng ký</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- ===== FIREBASE SDK ===== -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+      /* ===== FIREBASE CONFIG ===== */
+      var firebaseConfig = {
+        apiKey: "AIzaSyD9Vmq5O9sVpOsTtQ3qNIyggsIaobNfBMw",
+        authDomain: "do-an-high.firebaseapp.com",
+        databaseURL: "https://do-an-high-default-rtdb.firebaseio.com/",
+        projectId: "do-an-high",
+      };
+
+      firebase.initializeApp(firebaseConfig);
+
+      /* ===== UI STATE ===== */
+      let isLogin = true;
+
+      /* ===== HIỂN THỊ / XÓA LỖI ===== */
+      function showError(message) {
+        document.getElementById("errorMsg").innerText = message;
+      }
+
+      function clearError() {
+        document.getElementById("errorMsg").innerText = "";
+      }
+
+      /* ===== CHUYỂN LOGIN / REGISTER ===== */
+      function switchForm() {
+        clearError();
+
+        const title = document.getElementById("title");
+        const btn = document.getElementById("submitBtn");
+        const sw = document.querySelector(".switch");
+
+        if (isLogin) {
+          title.innerText = "Đăng ký";
+          btn.innerText = "Đăng ký";
+          sw.innerHTML = `Đã có tài khoản? <span onclick="switchForm()">Đăng nhập</span>`;
+        } else {
+          title.innerText = "Đăng nhập";
+          btn.innerText = "Đăng nhập";
+          sw.innerHTML = `Chưa có tài khoản? <span onclick="switchForm()">Đăng ký</span>`;
+        }
+        isLogin = !isLogin;
+      }
+
+      /* ===== SUBMIT ===== */
+      function handleSubmit() {
+        clearError();
+
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value.trim();
+
+        if (!email || !password) {
+          showError("Vui lòng nhập đầy đủ email và mật khẩu");
+          return;
+        }
+
+        if (isLogin) {
+          loginUser(email, password);
+        } else {
+          registerUser(email, password);
+        }
+      }
+
+      /* ===== ĐĂNG KÝ ===== */
+      function registerUser(email, password) {
+        firebase
+          .auth()
+          .createUserWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            const uid = userCredential.user.uid;
+
+            firebase
+              .database()
+              .ref("users/" + uid)
+              .set({
+                email: email,
+                createdAt: new Date().toISOString(),
+              });
+
+            clearError();
+            alert("Đăng ký thành công! Vui lòng đăng nhập.");
+            switchForm();
+          })
+          .catch((error) => {
+            showError(error.message);
+          });
+      }
+
+      /* ===== ĐĂNG NHẬP ===== */
+      function loginUser(email, password) {
+        firebase
+          .auth()
+          .signInWithEmailAndPassword(email, password)
+          .then((userCredential) => {
+            const uid = userCredential.user.uid;
+
+            firebase
+              .database()
+              .ref("users/" + uid)
+              .once("value")
+              .then((snapshot) => {
+                if (snapshot.exists()) {
+                  localStorage.setItem("loginSuccess", "true");
+                  localStorage.setItem("userEmail", email);
+                  localStorage.setItem("userUID", uid);
+
+                  window.location.href = "index.html";
+                } else {
+                  showError("Tài khoản không hợp lệ");
+                  firebase.auth().signOut();
+                }
+              });
+          })
+          .catch(() => {
+            showError("Sai email hoặc mật khẩu");
+          });
+      }
+    </script>
+  </body>
+</html>

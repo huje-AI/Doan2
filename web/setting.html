@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Cài đặt hệ thống</title>
+    <link rel="stylesheet" href="setting.css" />
+  </head>
+
+  <body>
+    <div class="card">
+      <h3>Ngưỡng dòng điện cảnh báo</h3>
+      <div class="row">
+        <input type="range" min="0" max="20" step="0.1" value="0" id="range" />
+        <b><span id="rangeVal">10</span> A</b>
+      </div>
+      <div class="desc">Vượt ngưỡng sẽ ghi log và phát âm thanh</div>
+    </div>
+
+    <div class="card">
+      <h3>Âm thanh cảnh báo</h3>
+
+      <div class="row">
+        <label class="toggle">
+          <input type="checkbox" id="sound" />
+          <span class="slider"></span>
+        </label>
+        <span id="soundText">Đang tắt</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Chốt điện & nước hàng tháng</h3>
+      <div class="row">
+        <input type="date" id="date" />
+        <input type="time" id="time" />
+      </div>
+      <div class="desc" id="preview">Chưa chọn thời gian</div>
+    </div>
+
+    <div class="save">
+      <button onclick="save()">Lưu cài đặt</button>
+      <span class="log" id="log"></span>
+    </div>
+
+    <!-- FIREBASE -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+      firebase.initializeApp({
+        apiKey: "AIzaSyD9Vmq5O9sVpOsTtQ3qNIyggsIaobNfBMw",
+        databaseURL: "https://do-an-high-default-rtdb.firebaseio.com/",
+      });
+
+      const range = document.getElementById("range");
+      const rangeVal = document.getElementById("rangeVal");
+      const sound = document.getElementById("sound");
+      const soundText = document.getElementById("soundText");
+
+      const date = document.getElementById("date");
+      const time = document.getElementById("time");
+      const preview = document.getElementById("preview");
+      const log = document.getElementById("log");
+
+      range.oninput = () => (rangeVal.innerText = range.value);
+      sound.onchange = () =>
+        (soundText.innerText = sound.checked ? "Đang bật" : "Đang tắt");
+
+      date.onchange = time.onchange = () => {
+        preview.innerText =
+          date.value && time.value
+            ? `Chốt vào ${date.value} – ${time.value}`
+            : "Chưa chọn thời gian";
+      };
+
+      async function save() {
+        firebase.auth().onAuthStateChanged(async (user) => {
+          if (!user) {
+            alert("Chưa đăng nhập");
+            return;
+          }
+
+          const uid = user.uid;
+
+          const settings = {
+            current_threshold: Number(range.value),
+            sound_enabled: sound.checked,
+            close_day: date.value,
+            close_time: time.value,
+            updated_at: Date.now(),
+          };
+
+          await firebase.database().ref(`users/${uid}/settings`).set(settings);
+
+          log.innerText = "✔ Đã lưu cài đặt";
+          setTimeout(() => (log.innerText = ""), 3000);
+        });
+      }
+    </script>
+
+    <script>
+      /* ===== LOAD SETTING KHI MỞ TRANG ===== */
+      firebase.auth().onAuthStateChanged((user) => {
+        if (!user) return;
+
+        const uid = user.uid;
+
+        firebase
+          .database()
+          .ref(`users/${uid}/settings`)
+          .once("value", (snap) => {
+            const s = snap.val();
+            if (!s) return;
+
+            /* === LOAD NGƯỠNG === */
+            range.value = s.current_threshold ?? 10;
+            rangeVal.innerText = range.value;
+
+            /* === LOAD ÂM THANH === */
+            sound.checked = s.sound_enabled ?? false;
+            soundText.innerText = sound.checked ? "Đang bật" : "Đang tắt";
+
+            /* === LOAD NGÀY GIỜ CHỐT === */
+            date.value = s.close_day ?? "";
+            time.value = s.close_time ?? "";
+
+            preview.innerText =
+              s.close_day && s.close_time
+                ? `Chốt vào ${s.close_day} – ${s.close_time}`
+                : "Chưa chọn thời gian";
+          });
+      });
+    </script>
+  </body>
+</html>

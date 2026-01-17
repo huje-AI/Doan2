@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Cài đặt hệ thống</title>
+<link rel="stylesheet" href="test.css">
+</head>
+
+<body>
+
+<!-- NGƯỠNG -->
+<div class="card">
+    <h3>Ngưỡng dòng điện cảnh báo</h3>
+    <div class="row">
+        <input type="range" min="0" max="100" value="10" id="range">
+        <b><span id="rangeVal">10</span> A</b>
+    </div>
+    <div class="desc">Vượt ngưỡng sẽ ghi log và cảnh báo</div>
+</div>
+
+<!-- ÂM THANH -->
+<div class="card">
+    <h3>Âm thanh cảnh báo</h3>
+
+    <div class="row">
+        <label class="toggle">
+            <input type="checkbox" id="sound">
+            <span class="slider"></span>
+        </label>
+        <span id="soundText">Đang tắt</span>
+    </div>
+
+    <div class="row file-row">
+        <input type="file" id="audioFile" accept="audio/*">
+        <button onclick="playSound()">Nghe thử</button>
+    </div>
+
+    <audio id="audio" hidden></audio>
+</div>
+
+<!-- CHỐT -->
+<div class="card">
+    <h3>Chốt điện & nước hàng tháng</h3>
+    <div class="row">
+        <input type="date" id="date">
+        <input type="time" id="time">
+    </div>
+    <div class="desc" id="preview">Chưa chọn thời gian</div>
+</div>
+
+<!-- SAVE -->
+<div class="save">
+    <button onclick="save()">Lưu cài đặt</button>
+    <span class="log" id="log"></span>
+</div>
+
+<script>
+const range = document.getElementById("range");
+const rangeVal = document.getElementById("rangeVal");
+range.oninput = () => rangeVal.innerText = range.value;
+
+const sound = document.getElementById("sound");
+const soundText = document.getElementById("soundText");
+sound.onchange = () =>
+    soundText.innerText = sound.checked ? "Đang bật" : "Đang tắt";
+
+date.onchange = time.onchange = () => {
+    preview.innerText =
+        date.value && time.value
+        ? `Chốt vào ${date.value} – ${time.value}`
+        : "Chưa chọn thời gian";
+};
+
+const audio = document.getElementById("audio");
+const audioFile = document.getElementById("audioFile");
+
+function playSound(){
+    if(!sound.checked){
+        alert("Bật âm thanh trước đã");
+        return;
+    }
+    if(!audioFile.files.length){
+        alert("Chưa chọn file âm thanh");
+        return;
+    }
+    audio.src = URL.createObjectURL(audioFile.files[0]);
+    audio.load();
+    audio.play();
+}
+
+function save(){
+    log.innerText = `✔ Đã lưu: ${range.value}A | Âm thanh ${sound.checked?"ON":"OFF"}`;
+    setTimeout(()=>log.innerText="",3000);
+}
+</script>
+
+</body>
+</html>

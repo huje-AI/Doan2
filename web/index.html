@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+
+  <body>
+    <!-- TOAST LOGIN SUCCESS -->
+    <div id="loginToast" class="toast">
+      <img src="success.png" alt="success" />
+      <span>Đăng nhập thành công</span>
+    </div>
+
+    <!-- USER INFO TOP RIGHT -->
+    <div id="userInfo" class="user-info">
+      <img src="user.png" class="user-avatar" />
+      <span id="userEmail"></span>
+      <button onclick="logout()">Logout</button>
+    </div>
+
+    <div class="container">
+      <!-- SIDEBAR -->
+      <div class="sidebar collapsed" id="sidebar">
+        <div class="toggle-btn" onclick="toggleSidebar()">
+          <img src="menu.png" />
+        </div>
+
+        <!-- LOGIN / REGISTER -->
+        <div class="menu-item" onclick="window.location.href='auth.html'">
+          <img src="user.png" />
+          <span>Đăng nhập / Đăng ký</span>
+        </div>
+
+        <div class="menu-item" onclick="loadPage('dien_nuoc.html')">
+          <img src="electric.png" />
+          <span>Quản lý tiêu dùng điện nước</span>
+        </div>
+
+        <div class="menu-item" onclick="loadPage('chart.html')">
+          <img src="chart.png" />
+          <span>Thông báo và đồ thị</span>
+        </div>
+
+        <div class="menu-bottom">
+          <div class="menu-item" onclick="loadPage('setting.html')">
+            <img src="setting.jpg" />
+            <span>Cài đặt</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAIN -->
+      <div class="main">
+        <iframe
+          id="contentFrame"
+          src="dien_nuoc.html"
+          frameborder="0"
+          style="
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: transparent;
+          "
+        >
+        </iframe>
+      </div>
+    </div>
+
+    <!-- ===== FIREBASE SDK ===== -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <script>
+      /* ===== FIREBASE CONFIG ===== */
+      var firebaseConfig = {
+        apiKey: "AIzaSyD9Vmq5O9sVpOsTtQ3qNIyggsIaobNfBMw",
+        authDomain: "do-an-high.firebaseapp.com",
+        databaseURL: "https://do-an-high-default-rtdb.firebaseio.com/",
+        projectId: "do-an-high",
+      };
+
+      firebase.initializeApp(firebaseConfig);
+
+      /* ===== SIDEBAR ===== */
+      function toggleSidebar() {
+        document.getElementById("sidebar").classList.toggle("collapsed");
+      }
+
+      /* ===== TOAST ===== */
+      function showLoginSuccess() {
+        const toast = document.getElementById("loginToast");
+        toast.classList.add("show");
+
+        setTimeout(() => {
+          toast.classList.remove("show");
+        }, 3000);
+      }
+
+      /* ===== FIREBASE AUTH STATE ===== */
+      firebase.auth().onAuthStateChanged((user) => {
+        const userInfo = document.getElementById("userInfo");
+        const emailSpan = document.getElementById("userEmail");
+
+        if (user) {
+          // ĐÃ ĐĂNG NHẬP
+          emailSpan.innerText = user.email;
+          userInfo.style.display = "flex";
+
+          // HIỆN TOAST 1 LẦN
+          if (localStorage.getItem("loginSuccess") === "true") {
+            showLoginSuccess();
+            localStorage.removeItem("loginSuccess");
+          }
+        } else {
+          // CHƯA ĐĂNG NHẬP → VẪN Ở DASHBOARD
+          userInfo.style.display = "none";
+        }
+      });
+
+      /* ===== LOGOUT ===== */
+      function logout() {
+        firebase
+          .auth()
+          .signOut()
+          .then(() => {
+            localStorage.clear();
+            window.location.href = "index.html";
+          });
+      }
+    </script>
+
+    <script>
+      let currentPage = "dien_nuoc.html"; // 👈 trang mặc định
+
+      function loadPage(page) {
+        if (currentPage === page) return; // 👈 không reload nếu đang ở trang đó
+        currentPage = page;
+        document.getElementById("contentFrame").src = page;
+      }
+    </script>
+  </body>
+</html>
