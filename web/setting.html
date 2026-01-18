@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
@@ -14,6 +14,22 @@
         <b><span id="rangeVal">10</span> A</b>
       </div>
       <div class="desc">Vượt ngưỡng sẽ ghi log và phát âm thanh</div>
+    </div>
+
+    <div class="card">
+      <h3>⚡ Điện áp chuẩn (V)</h3>
+      <div class="row">
+        <input
+          type="range"
+          min="180"
+          max="250"
+          step="1"
+          value="220"
+          id="voltageStandard"
+        />
+        <b><span id="voltageVal">220</span> V</b>
+      </div>
+      <div class="desc">Giá trị điện áp chuẩn để so sánh (thường là 220V)</div>
     </div>
 
     <div class="card">
@@ -55,6 +71,8 @@
 
       const range = document.getElementById("range");
       const rangeVal = document.getElementById("rangeVal");
+      const voltageStandard = document.getElementById("voltageStandard");
+      const voltageVal = document.getElementById("voltageVal");
       const sound = document.getElementById("sound");
       const soundText = document.getElementById("soundText");
 
@@ -64,6 +82,8 @@
       const log = document.getElementById("log");
 
       range.oninput = () => (rangeVal.innerText = range.value);
+      voltageStandard.oninput = () =>
+        (voltageVal.innerText = voltageStandard.value);
       sound.onchange = () =>
         (soundText.innerText = sound.checked ? "Đang bật" : "Đang tắt");
 
@@ -85,6 +105,7 @@
 
           const settings = {
             current_threshold: Number(range.value),
+            voltage_standard: Number(voltageStandard.value),
             sound_enabled: sound.checked,
             close_day: date.value,
             close_time: time.value,
@@ -116,6 +137,10 @@
             /* === LOAD NGƯỠNG === */
             range.value = s.current_threshold ?? 10;
             rangeVal.innerText = range.value;
+
+            /* === LOAD ĐIỆN ÁP CHUẨN === */
+            voltageStandard.value = s.voltage_standard ?? 220;
+            voltageVal.innerText = voltageStandard.value;
 
             /* === LOAD ÂM THANH === */
             sound.checked = s.sound_enabled ?? false;

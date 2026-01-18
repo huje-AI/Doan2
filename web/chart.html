@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
@@ -17,10 +17,15 @@
     <div class="noti-container">
       <div class="noti-header">
         <div class="left">
-          <h2>Notifications</h2>
+          <h2>Thông báo</h2>
           <span id="unreadCount" class="badge">0</span>
         </div>
-        <button onclick="markAllRead()">Mark all as read</button>
+        <div class="header-buttons">
+          <button onclick="markAllRead()">Đánh dấu đã đọc</button>
+          <button class="delete-all-btn" onclick="deleteAllNotifications()">
+            Xóa toàn bộ
+          </button>
+        </div>
       </div>
 
       <div class="noti-list" id="notiList">
@@ -90,18 +95,36 @@
             mode: "index",
             intersect: false,
           },
+          layout: {
+            padding: {
+              top: 10,
+              bottom: 10,
+            },
+          },
           scales: {
             x: {
-              ticks: { color: "#374151" },
-              grid: { color: "rgba(0,0,0,0.05)" },
+              ticks: {
+                color: "#374151",
+                maxRotation: 45,
+                minRotation: 0,
+                font: { size: 11 },
+              },
+              grid: { color: "rgba(0,0,0,0.06)" },
             },
             yPower: {
               min: 0,
               max: 1000,
-              ticks: { color: "#374151" },
+              ticks: {
+                color: "#2563eb",
+                font: { size: 12, weight: "500" },
+                stepSize: 100,
+              },
+              grid: { color: "rgba(37,99,235,0.1)" },
               title: {
                 display: true,
                 text: "Công suất (W)",
+                color: "#2563eb",
+                font: { size: 14, weight: "600" },
               },
             },
             yFlow: {
@@ -109,10 +132,16 @@
               max: 2000,
               position: "right",
               grid: { drawOnChartArea: false },
-              ticks: { color: "#374151" },
+              ticks: {
+                color: "#16a34a",
+                font: { size: 12, weight: "500" },
+                stepSize: 200,
+              },
               title: {
                 display: true,
                 text: "Lưu lượng (mL/s)",
+                color: "#16a34a",
+                font: { size: 14, weight: "600" },
               },
             },
           },
@@ -220,13 +249,31 @@
             render();
           });
 
+        /* ===== PARSE TIME HELPER ===== */
+        function parseVietnameseTime(timeStr) {
+          // Format: "17:03:09 17/1/2026"
+          const parts = timeStr.split(" ");
+          if (parts.length !== 2) return new Date(timeStr);
+
+          const timePart = parts[0]; // "17:03:09"
+          const datePart = parts[1]; // "17/1/2026"
+
+          const [day, month, year] = datePart.split("/");
+          const [hours, minutes, seconds] = timePart.split(":");
+
+          return new Date(year, month - 1, day, hours, minutes, seconds);
+        }
+
         /* ===== RENDER UI ===== */
         function render() {
           notiList.innerHTML = "";
           let unread = 0;
 
           notifications
-            .sort((a, b) => new Date(b.time) - new Date(a.time))
+            .sort(
+              (a, b) =>
+                parseVietnameseTime(b.time) - parseVietnameseTime(a.time),
+            )
             .forEach((n) => {
               if (n.unread) unread++;
 
@@ -271,6 +318,22 @@
         /* ===== MARK ALL READ ===== */
         window.markAllRead = () => {
           notifications.forEach((n) => (n.unread = false));
+          render();
+        };
+
+        /* ===== DELETE ALL NOTIFICATIONS ===== */
+        window.deleteAllNotifications = () => {
+          if (!confirm("Bạn có chắc muốn xóa toàn bộ lịch sử thông báo?"))
+            return;
+
+          // Xóa alerts trong Firebase
+          firebase.database().ref(`users/${uid}/logs/alerts`).remove();
+
+          // Xóa monthly logs trong Firebase
+          firebase.database().ref(`users/${uid}/logs/monthly`).remove();
+
+          // Xóa local notifications array
+          notifications = [];
           render();
         };
       });

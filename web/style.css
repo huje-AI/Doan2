@@ -1,197 +1,267 @@
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
 }
 
 /* ===== CONTAINER ===== */
 .container {
-    display: flex;
-    width: 100%;
-    height: 100vh;
+  display: flex;
+  width: 100%;
+  height: 100vh;
 }
 
 /* ===== SIDEBAR ===== */
 .sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
 
-    width: 280px;
-    height: 100vh;
+  width: 280px;
+  height: 100vh;
 
-    background-color: #1f2937;
-    padding: 15px 10px;
+  background-color: #1f2937;
+  padding: 15px 10px;
 
-    transition: width 0.3s ease;
+  transition: width 0.3s ease;
 }
 
 /* sidebar thu gọn */
 .sidebar.collapsed {
-    width: 70px;
+  width: 70px;
 }
 
 /* ===== TOGGLE ☰ ===== */
 .toggle-btn {
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
 
-    padding-left: 12px;
-    margin-bottom: 20px;
+  padding-left: 12px;
+  margin-bottom: 20px;
 
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .toggle-btn img {
-    width: 26px;
+  width: 26px;
 }
 
 /* ===== MENU ITEM ===== */
 .menu-item {
-    height: 48px;
-    display: flex;
-    align-items: center;
+  height: 48px;
+  display: flex;
+  align-items: center;
 
-    gap: 12px;
-    padding: 0 12px;
-    margin-bottom: 6px;
+  gap: 12px;
+  padding: 0 12px;
+  margin-bottom: 6px;
 
-    border-radius: 8px;
-    color: #ffffff;
-    cursor: pointer;
+  border-radius: 8px;
+  color: #ffffff;
+  cursor: pointer;
 
-    white-space: nowrap;
+  white-space: nowrap;
 }
 
 .menu-item img {
-    width: 24px;
-    height: 24px;
-    min-width: 24px;
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
 }
 
 .menu-item span {
-    line-height: 1;
+  line-height: 1;
 }
 
 /* hover */
 .menu-item:hover {
-    background-color: #374151;
+  background-color: #374151;
 }
 
 /* ẩn chữ khi thu gọn */
 .sidebar.collapsed .menu-item span {
-    display: none;
+  display: none;
 }
 
 /* ===== MAIN CONTENT ===== */
 .main {
-    flex: 1;
-    height: 100vh;
+  flex: 1;
+  height: 100vh;
 
-    margin-left: 70px;
-    transition: margin-left 0.3s;
+  margin-left: 70px;
+  transition: margin-left 0.3s;
 
-    background-image: url("bg_dep.jpg");
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+  background-image: url("bg_dep.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
-
-
 .sidebar:not(.collapsed) ~ .main {
-    margin-left: 280px;
+  margin-left: 280px;
 }
 
 /* ===== TOAST LOGIN SUCCESS ===== */
 .toast {
-    position: fixed;
-    top: 80px;          /* 👈 ĐẨY XUỐNG */
-    right: 20px;
+  position: fixed;
+  top: 80px; /* 👈 ĐẨY XUỐNG */
+  right: 20px;
 
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 
-    background: #0f172a;
-    color: #ffffff;
-    padding: 14px 18px;
-    border-radius: 12px;
+  background: #0f172a;
+  color: #ffffff;
+  padding: 14px 18px;
+  border-radius: 12px;
 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 
-    opacity: 0;
-    transform: translateY(-10px);
-    pointer-events: none;
+  opacity: 0;
+  transform: translateY(-10px);
+  pointer-events: none;
 
-    transition: all 0.35s ease;
-    z-index: 9999;
+  transition: all 0.35s ease;
+  z-index: 9999;
 }
 
-
 .toast img {
-    width: 26px;
-    height: 26px;
+  width: 26px;
+  height: 26px;
 }
 
 .toast.show {
-    opacity: 1;
-    transform: translateY(0);
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* ===== USER INFO TOP RIGHT ===== */
 .user-info {
-    position: fixed;
-    top: 20px;
-    right: 20px;
+  position: fixed;
+  top: 20px;
+  right: 20px;
 
-    display: none;
-    align-items: center;
-    gap: 10px;
+  display: none;
+  align-items: center;
+  gap: 10px;
 
-    background: #0f172a;
-    padding: 10px 14px;
-    border-radius: 14px;
+  background: #0f172a;
+  padding: 10px 14px;
+  border-radius: 14px;
 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    z-index: 10000; /* cao nhất */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  z-index: 10000; /* cao nhất */
 }
 
-
 .user-avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
 }
 
 .user-info span {
-    color: #fff;
-    font-size: 14px;
+  color: #fff;
+  font-size: 14px;
 }
 
 .user-info button {
-    background: #ef4444;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    padding: 6px 10px;
-    cursor: pointer;
-    font-size: 13px;
+  background: #ef4444;
+  border: none;
+  border-radius: 8px;
+  color: white;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 13px;
 }
 
 .user-info button:hover {
-    background: #dc2626;
+  background: #dc2626;
 }
 
 .menu-bottom {
-    position: absolute;
-    bottom: 20px;
-    left: 0;
-    width: 100%;
-    padding: 0 10px;
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  width: 100%;
+  padding: 0 10px;
 }
 
+/* ===== THÔNG BÁO CHỐT ĐIỆN NƯỚC ===== */
+.monthly-notification {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%);
 
+  display: flex;
+  align-items: center;
+  gap: 15px;
+
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  padding: 16px 24px;
+  border-radius: 16px;
+
+  box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4);
+  z-index: 10001;
+
+  animation: slideDown 0.4s ease;
+}
+
+.monthly-notification.hidden {
+  display: none;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.notif-icon {
+  font-size: 32px;
+}
+
+.notif-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.notif-title {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.notif-message {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.notif-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s;
+}
+
+.notif-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+}

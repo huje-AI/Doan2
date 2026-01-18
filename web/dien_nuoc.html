@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
@@ -62,6 +62,77 @@
       </div>
     </div>
 
+    <!-- PHẦN CHỐT ĐIỆN NƯỚC THÁNG -->
+    <div class="monthly-section">
+      <div class="monthly-header">
+        <h2>📅 Chốt điện nước hàng tháng</h2>
+        <div class="header-actions">
+          <div class="schedule-info" id="scheduleInfo">
+            <span class="schedule-label">⏰ Lịch chốt tiếp theo:</span>
+            <span class="schedule-time" id="scheduleTime">Chưa cài đặt</span>
+            <span class="schedule-status" id="scheduleStatus"></span>
+          </div>
+          <button id="btnChotNgay" class="btn-chot-ngay">💾 Chốt ngay</button>
+        </div>
+      </div>
+
+      <!-- Bảng so sánh -->
+      <div class="comparison-container">
+        <h3>📊 So sánh sử dụng điện nước</h3>
+        <div class="comparison-selectors">
+          <div class="selector-group">
+            <label>Tháng trước:</label>
+            <select id="prevMonthSelect"></select>
+          </div>
+          <div class="selector-group">
+            <label>Tháng sau:</label>
+            <select id="currMonthSelect"></select>
+          </div>
+          <button id="btnCompare" class="btn-compare">So sánh</button>
+        </div>
+
+        <table class="comparison-table" id="comparisonTable">
+          <thead>
+            <tr>
+              <th>Chỉ số</th>
+              <th id="thPrevMonth">Tháng trước</th>
+              <th id="thCurrMonth">Tháng sau</th>
+              <th>Chênh lệch</th>
+              <th>Tình trạng</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>🔌 Điện năng (kWh)</td>
+              <td id="prevEnergy">--</td>
+              <td id="currEnergy">--</td>
+              <td id="diffEnergy">--</td>
+              <td id="statusEnergy">--</td>
+            </tr>
+            <tr>
+              <td>💧 Tổng nước (m³)</td>
+              <td id="prevWater">--</td>
+              <td id="currWater">--</td>
+              <td id="diffWater">--</td>
+              <td id="statusWater">--</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="comparison-summary" id="comparisonSummary">
+          <p>Chọn 2 tháng và nhấn "So sánh" để xem kết quả.</p>
+        </div>
+      </div>
+
+      <!-- Lịch sử chốt -->
+      <div class="history-container">
+        <h3>📜 Lịch sử chốt điện nước</h3>
+        <div class="history-list" id="historyList">
+          <p class="no-data">Chưa có dữ liệu chốt.</p>
+        </div>
+      </div>
+    </div>
+
     <!-- FIREBASE -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -75,6 +146,7 @@
       });
 
       let oldData = {};
+      let voltageStandard = 220; // Giá trị điện áp chuẩn mặc định
 
       firebase.auth().onAuthStateChanged((user) => {
         if (!user) {
@@ -85,6 +157,17 @@
         const uid = user.uid;
         const dbRef = firebase.database().ref("users/" + uid);
 
+        // Load giá trị điện áp chuẩn từ settings
+        firebase
+          .database()
+          .ref(`users/${uid}/settings`)
+          .on("value", (snap) => {
+            const s = snap.val();
+            if (s && s.voltage_standard) {
+              voltageStandard = s.voltage_standard;
+            }
+          });
+
         dbRef.on("value", (snap) => {
           const d = snap.val();
           if (!d) return;
@@ -92,7 +175,7 @@
           console.log("Firebase data:", d); // 👈 test
 
           updateCard("energy", d.energy ?? 0, "kWh");
-          updateCard("voltage", d.voltage ?? 0, "V");
+          updateCardVoltage("voltage", d.voltage ?? 0, "V"); // Dùng hàm riêng cho điện áp
           updateCard("current", d.current ?? 0, "A");
           updateCard("power", d.power ?? 0, "W");
           updateCard("flow", d.flow_ml_s ?? 0, "mL/s");
@@ -101,6 +184,28 @@
           oldData = d;
         });
       });
+
+      // Hàm riêng cho điện áp - so sánh với giá trị chuẩn
+      function updateCardVoltage(key, value, unit) {
+        const numEl = document.getElementById(key);
+        const trendEl = document.getElementById(key + "Trend");
+        const card = document.getElementById(key + "Card");
+
+        const diff = value - voltageStandard;
+
+        numEl.innerText = value;
+        card.classList.remove("up", "down");
+
+        if (diff > 0) {
+          card.classList.add("up");
+          trendEl.innerHTML = `▲ +${diff.toFixed(1)} ${unit} (chuẩn: ${voltageStandard}V)`;
+        } else if (diff < 0) {
+          card.classList.add("down");
+          trendEl.innerHTML = `▼ ${diff.toFixed(1)} ${unit} (chuẩn: ${voltageStandard}V)`;
+        } else {
+          trendEl.innerHTML = `✓ Đúng chuẩn ${voltageStandard}V`;
+        }
+      }
 
       function updateCard(key, value, unit) {
         const numEl = document.getElementById(key);
@@ -220,6 +325,458 @@
             }
           });
       }, 60000);
+    </script>
+
+    <!-- SCRIPT CHỐT ĐIỆN NƯỚC -->
+    <script>
+      let currentUid = null;
+      let monthlyData = {};
+
+      let closeDay = null;
+      let closeTime = null;
+      let autoCloseInterval = null;
+
+      firebase.auth().onAuthStateChanged((user) => {
+        if (!user) return;
+        currentUid = user.uid;
+
+        // Load dữ liệu chốt từ Firebase
+        loadMonthlyData();
+
+        // Load cài đặt thời gian chốt
+        loadScheduleSettings();
+
+        // Bắt đầu kiểm tra chốt tự động
+        startAutoCloseCheck();
+      });
+
+      function loadScheduleSettings() {
+        firebase
+          .database()
+          .ref(`users/${currentUid}/settings`)
+          .on("value", (snap) => {
+            const s = snap.val();
+            if (!s) {
+              document.getElementById("scheduleTime").textContent =
+                "Chưa cài đặt";
+              document.getElementById("scheduleStatus").textContent = "";
+              return;
+            }
+
+            closeDay = s.close_day || null;
+            closeTime = s.close_time || null;
+
+            if (closeDay && closeTime) {
+              const scheduleDate = new Date(closeDay + "T" + closeTime);
+              const now = new Date();
+
+              document.getElementById("scheduleTime").textContent =
+                `${formatDate(closeDay)} lúc ${closeTime}`;
+
+              if (scheduleDate > now) {
+                document.getElementById("scheduleStatus").innerHTML =
+                  '<span class="status-pending">⏳ Đang chờ</span>';
+              } else {
+                document.getElementById("scheduleStatus").innerHTML =
+                  '<span class="status-done">✅ Đã chốt</span>';
+              }
+            } else {
+              document.getElementById("scheduleTime").textContent =
+                "Chưa cài đặt";
+              document.getElementById("scheduleStatus").innerHTML =
+                '<a href="setting.html" target="_top" class="link-setting">Cài đặt ngay →</a>';
+            }
+          });
+      }
+
+      function formatDate(dateStr) {
+        const [year, month, day] = dateStr.split("-");
+        return `${day}/${month}/${year}`;
+      }
+
+      function startAutoCloseCheck() {
+        // Kiểm tra mỗi 30 giây
+        autoCloseInterval = setInterval(() => {
+          checkAndAutoClose();
+        }, 30000);
+
+        // Kiểm tra ngay khi load
+        checkAndAutoClose();
+      }
+
+      function checkAndAutoClose() {
+        if (!closeDay || !closeTime || !currentUid) return;
+
+        const scheduleDate = new Date(closeDay + "T" + closeTime);
+        const now = new Date();
+        const diff = Math.abs(now - scheduleDate);
+
+        // Nếu trong khoảng 1 phút của thời gian chốt
+        if (diff <= 60000 && now >= scheduleDate) {
+          const monthKey = scheduleDate.toISOString().slice(0, 7);
+
+          // Kiểm tra đã chốt tháng này chưa
+          if (monthlyData[monthKey] && monthlyData[monthKey].auto_closed) {
+            return; // Đã chốt rồi
+          }
+
+          // Thực hiện chốt tự động
+          performAutoClose(monthKey, scheduleDate);
+        }
+      }
+
+      function performAutoClose(monthKey, scheduleDate) {
+        const energy =
+          parseFloat(document.getElementById("energy").innerText) || 0;
+        const water =
+          parseFloat(document.getElementById("water").innerText) || 0;
+
+        const recordData = {
+          energy: energy,
+          water: water,
+          recorded_at: new Date().toLocaleString("vi-VN"),
+          timestamp: Date.now(),
+          auto_closed: true,
+          scheduled_time: scheduleDate.toISOString(),
+        };
+
+        firebase
+          .database()
+          .ref(`users/${currentUid}/monthly_records/${monthKey}`)
+          .set(recordData)
+          .then(() => {
+            console.log("✅ Đã chốt tự động tháng " + monthKey);
+
+            // Gửi thông báo lên Firebase
+            firebase
+              .database()
+              .ref(`users/${currentUid}/notifications/monthly_close`)
+              .set({
+                type: "monthly_close",
+                title: "📊 Đã chốt điện nước!",
+                message: `Tháng ${formatMonth(monthKey)}: 🔌 ${energy} kWh | 💧 ${water} m³`,
+                time: new Date().toISOString(),
+                unread: true,
+              });
+
+            // Gửi lệnh reset cho ESP8266 (ESP sẽ reset và gửi giá trị 0 lên Firebase)
+            firebase
+              .database()
+              .ref(`users/${currentUid}/reset_command`)
+              .set(true)
+              .then(() => {
+                console.log("🔄 Đã gửi lệnh reset cho ESP8266");
+              });
+          })
+          .catch((err) => {
+            console.error("❌ Lỗi chốt tự động:", err);
+          });
+      }
+
+      function loadMonthlyData() {
+        firebase
+          .database()
+          .ref(`users/${currentUid}/monthly_records`)
+          .on("value", (snap) => {
+            monthlyData = snap.val() || {};
+            updateMonthSelectors();
+            updateHistoryList();
+          });
+      }
+
+      // Nút chốt ngay - chốt tức thì không cần chờ đến giờ
+      document.getElementById("btnChotNgay").addEventListener("click", () => {
+        if (!currentUid) {
+          alert("Chưa đăng nhập!");
+          return;
+        }
+
+        const now = new Date();
+        const monthKey = now.toISOString().slice(0, 7);
+
+        // Kiểm tra đã chốt tháng này chưa
+        if (monthlyData[monthKey]) {
+          if (
+            !confirm(
+              `Tháng ${formatMonth(monthKey)} đã có dữ liệu. Bạn có muốn ghi đè không?`,
+            )
+          ) {
+            return;
+          }
+        }
+
+        const energy =
+          parseFloat(document.getElementById("energy").innerText) || 0;
+        const water =
+          parseFloat(document.getElementById("water").innerText) || 0;
+
+        const recordData = {
+          energy: energy,
+          water: water,
+          recorded_at: new Date().toLocaleString("vi-VN"),
+          timestamp: Date.now(),
+          auto_closed: false,
+          manual: true,
+        };
+
+        firebase
+          .database()
+          .ref(`users/${currentUid}/monthly_records/${monthKey}`)
+          .set(recordData)
+          .then(() => {
+            // Cập nhật dữ liệu local ngay lập tức
+            monthlyData[monthKey] = recordData;
+
+            // Cập nhật UI ngay
+            updateMonthSelectors();
+            updateHistoryList();
+
+            alert(
+              `✅ Đã chốt điện nước tháng ${formatMonth(monthKey)} thành công!\n🔌 Điện: ${energy} kWh\n💧 Nước: ${water} m³`,
+            );
+
+            // Gửi lệnh reset cho ESP8266 (ESP sẽ reset và gửi giá trị 0 lên Firebase)
+            firebase
+              .database()
+              .ref(`users/${currentUid}/reset_command`)
+              .set(true);
+          })
+          .catch((err) => {
+            alert("❌ Lỗi: " + err.message);
+          });
+      });
+
+      // Thêm dữ liệu mẫu tháng 12 nếu chưa có
+      function addSampleDataDecember() {
+        if (!currentUid) return;
+
+        const dec2025Key = "2025-12";
+
+        // Kiểm tra đã có dữ liệu tháng 12 chưa
+        firebase
+          .database()
+          .ref(`users/${currentUid}/monthly_records/${dec2025Key}`)
+          .once("value")
+          .then((snap) => {
+            if (!snap.val()) {
+              // Thêm dữ liệu mẫu tháng 12/2025
+              const sampleData = {
+                energy: 125.5,
+                water: 8.234,
+                recorded_at: "31/12/2025, 23:59:00",
+                timestamp: new Date("2025-12-31T23:59:00").getTime(),
+                auto_closed: true,
+                sample_data: true,
+              };
+
+              firebase
+                .database()
+                .ref(`users/${currentUid}/monthly_records/${dec2025Key}`)
+                .set(sampleData)
+                .then(() => {
+                  console.log("📊 Đã thêm dữ liệu mẫu tháng 12/2025");
+                });
+            }
+          });
+      }
+
+      // Gọi thêm dữ liệu mẫu khi load
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          setTimeout(() => {
+            addSampleDataDecember();
+          }, 2000);
+        }
+      });
+
+      function updateMonthSelectors() {
+        const prevSelect = document.getElementById("prevMonthSelect");
+        const currSelect = document.getElementById("currMonthSelect");
+
+        const months = Object.keys(monthlyData).sort().reverse();
+
+        prevSelect.innerHTML = "";
+        currSelect.innerHTML = "";
+
+        if (months.length === 0) {
+          prevSelect.innerHTML = '<option value="">Chưa có dữ liệu</option>';
+          currSelect.innerHTML = '<option value="">Chưa có dữ liệu</option>';
+          return;
+        }
+
+        months.forEach((month) => {
+          prevSelect.innerHTML += `<option value="${month}">${formatMonth(month)}</option>`;
+          currSelect.innerHTML += `<option value="${month}">${formatMonth(month)}</option>`;
+        });
+
+        // Mặc định: tháng trước là tháng cũ nhất trong 2 tháng gần nhất
+        if (months.length >= 2) {
+          prevSelect.value = months[1];
+          currSelect.value = months[0];
+        }
+      }
+
+      function formatMonth(monthStr) {
+        const [year, month] = monthStr.split("-");
+        return `Tháng ${parseInt(month)}/${year}`;
+      }
+
+      function updateHistoryList() {
+        const historyList = document.getElementById("historyList");
+        const months = Object.keys(monthlyData).sort().reverse();
+
+        if (months.length === 0) {
+          historyList.innerHTML =
+            '<p class="no-data">Chưa có dữ liệu chốt.</p>';
+          return;
+        }
+
+        let html = "";
+        months.forEach((month) => {
+          const data = monthlyData[month];
+          html += `
+            <div class="history-item">
+              <div class="history-month">${formatMonth(month)}</div>
+              <div class="history-details">
+                <span>🔌 ${data.energy ?? 0} kWh</span>
+                <span>💧 ${data.water ?? 0} m³</span>
+              </div>
+              <div class="history-time">Chốt lúc: ${data.recorded_at ?? "--"}</div>
+              <button class="btn-delete" onclick="deleteRecord('${month}')">🗑️</button>
+            </div>
+          `;
+        });
+
+        historyList.innerHTML = html;
+      }
+
+      // Nút so sánh
+      document.getElementById("btnCompare").addEventListener("click", () => {
+        const prevMonth = document.getElementById("prevMonthSelect").value;
+        const currMonth = document.getElementById("currMonthSelect").value;
+
+        if (!prevMonth || !currMonth) {
+          alert("Vui lòng chọn đủ 2 tháng để so sánh!");
+          return;
+        }
+
+        if (prevMonth === currMonth) {
+          alert("Vui lòng chọn 2 tháng khác nhau!");
+          return;
+        }
+
+        const prevData = monthlyData[prevMonth];
+        const currData = monthlyData[currMonth];
+
+        if (!prevData || !currData) {
+          alert("Không tìm thấy dữ liệu cho tháng đã chọn!");
+          return;
+        }
+
+        // Cập nhật header bảng
+        document.getElementById("thPrevMonth").textContent =
+          formatMonth(prevMonth);
+        document.getElementById("thCurrMonth").textContent =
+          formatMonth(currMonth);
+
+        // Tính toán và hiển thị
+        const prevEnergy = prevData.energy || 0;
+        const currEnergy = currData.energy || 0;
+        const diffEnergy = currEnergy - prevEnergy;
+
+        const prevWater = prevData.water || 0;
+        const currWater = currData.water || 0;
+        const diffWater = currWater - prevWater;
+
+        document.getElementById("prevEnergy").textContent =
+          prevEnergy.toFixed(2);
+        document.getElementById("currEnergy").textContent =
+          currEnergy.toFixed(2);
+        document.getElementById("diffEnergy").textContent =
+          (diffEnergy >= 0 ? "+" : "") + diffEnergy.toFixed(2);
+        document.getElementById("diffEnergy").className =
+          diffEnergy > 0 ? "increase" : diffEnergy < 0 ? "decrease" : "";
+
+        document.getElementById("prevWater").textContent = prevWater.toFixed(3);
+        document.getElementById("currWater").textContent = currWater.toFixed(3);
+        document.getElementById("diffWater").textContent =
+          (diffWater >= 0 ? "+" : "") + diffWater.toFixed(3);
+        document.getElementById("diffWater").className =
+          diffWater > 0 ? "increase" : diffWater < 0 ? "decrease" : "";
+
+        // Status
+        document.getElementById("statusEnergy").innerHTML = getStatusHTML(
+          diffEnergy,
+          "điện",
+        );
+        document.getElementById("statusWater").innerHTML = getStatusHTML(
+          diffWater,
+          "nước",
+        );
+
+        // Summary
+        updateComparisonSummary(diffEnergy, diffWater, prevMonth, currMonth);
+      });
+
+      function getStatusHTML(diff, type) {
+        if (diff > 0) {
+          const percent =
+            diff > 0 ? "+" + ((diff / Math.abs(diff)) * 100).toFixed(0) : 0;
+          return `<span class="status-up">📈 Tăng</span>`;
+        } else if (diff < 0) {
+          return `<span class="status-down">📉 Giảm</span>`;
+        } else {
+          return `<span class="status-equal">➡️ Bằng</span>`;
+        }
+      }
+
+      function updateComparisonSummary(
+        diffEnergy,
+        diffWater,
+        prevMonth,
+        currMonth,
+      ) {
+        const summary = document.getElementById("comparisonSummary");
+
+        let energyMsg =
+          diffEnergy > 0
+            ? `⚠️ Điện năng <strong>tăng ${diffEnergy.toFixed(2)} kWh</strong>`
+            : diffEnergy < 0
+              ? `✅ Điện năng <strong>giảm ${Math.abs(diffEnergy).toFixed(2)} kWh</strong>`
+              : `➡️ Điện năng <strong>không đổi</strong>`;
+
+        let waterMsg =
+          diffWater > 0
+            ? `⚠️ Nước <strong>tăng ${diffWater.toFixed(3)} m³</strong>`
+            : diffWater < 0
+              ? `✅ Nước <strong>giảm ${Math.abs(diffWater).toFixed(3)} m³</strong>`
+              : `➡️ Nước <strong>không đổi</strong>`;
+
+        summary.innerHTML = `
+          <h4>📋 Tóm tắt so sánh ${formatMonth(prevMonth)} → ${formatMonth(currMonth)}</h4>
+          <p>${energyMsg}</p>
+          <p>${waterMsg}</p>
+        `;
+      }
+
+      function deleteRecord(month) {
+        if (
+          !confirm(`Bạn có chắc muốn xóa dữ liệu tháng ${formatMonth(month)}?`)
+        ) {
+          return;
+        }
+
+        firebase
+          .database()
+          .ref(`users/${currentUid}/monthly_records/${month}`)
+          .remove()
+          .then(() => {
+            alert("✅ Đã xóa!");
+          })
+          .catch((err) => {
+            alert("❌ Lỗi: " + err.message);
+          });
+      }
     </script>
 
     <audio

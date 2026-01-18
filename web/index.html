@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
@@ -20,6 +20,16 @@
       <button onclick="logout()">Logout</button>
     </div>
 
+    <!-- THÔNG BÁO CHỐT ĐIỆN NƯỚC -->
+    <div id="monthlyNotification" class="monthly-notification hidden">
+      <div class="notif-icon">📊</div>
+      <div class="notif-content">
+        <div class="notif-title" id="notifTitle">Đã chốt điện nước!</div>
+        <div class="notif-message" id="notifMessage"></div>
+      </div>
+      <button class="notif-close" onclick="closeNotification()">✕</button>
+    </div>
+
     <div class="container">
       <!-- SIDEBAR -->
       <div class="sidebar collapsed" id="sidebar">
@@ -28,7 +38,7 @@
         </div>
 
         <!-- LOGIN / REGISTER -->
-        <div class="menu-item" onclick="window.location.href='auth.html'">
+        <div class="menu-item" onclick="window.location.href = 'auth.html'">
           <img src="user.png" />
           <span>Đăng nhập / Đăng ký</span>
         </div>
@@ -129,6 +139,63 @@
             window.location.href = "index.html";
           });
       }
+
+      /* ===== NOTIFICATION CHỐT ĐIỆN NƯỚC ===== */
+      function closeNotification() {
+        const notif = document.getElementById("monthlyNotification");
+        notif.classList.add("hidden");
+
+        // Đánh dấu đã đọc
+        const user = firebase.auth().currentUser;
+        if (user) {
+          firebase
+            .database()
+            .ref(`users/${user.uid}/notifications/monthly_close/unread`)
+            .set(false);
+        }
+      }
+
+      function checkMonthlyNotification() {
+        const user = firebase.auth().currentUser;
+        if (!user) return;
+
+        firebase
+          .database()
+          .ref(`users/${user.uid}/notifications/monthly_close`)
+          .on("value", (snap) => {
+            const notif = snap.val();
+            if (!notif || !notif.unread) return;
+
+            const notifEl = document.getElementById("monthlyNotification");
+            document.getElementById("notifTitle").textContent =
+              notif.title || "📊 Đã chốt điện nước!";
+            document.getElementById("notifMessage").textContent =
+              notif.message || "";
+
+            notifEl.classList.remove("hidden");
+
+            // Tự động ẩn sau 10 giây
+            setTimeout(() => {
+              notifEl.classList.add("hidden");
+              firebase
+                .database()
+                .ref(`users/${user.uid}/notifications/monthly_close/unread`)
+                .set(false);
+            }, 10000);
+          });
+      }
+    </script>
+
+    <!-- FIREBASE DATABASE -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+    <script>
+      // Khởi tạo kiểm tra thông báo sau khi đăng nhập
+      firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+          checkMonthlyNotification();
+        }
+      });
     </script>
 
     <script>
