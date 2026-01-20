@@ -1,98 +1,143 @@
-<!DOCTYPE html>
+<!doctype html>
+<!--
+  ============================================================
+  FILE: test.html
+  MÔ TẢ: Trang test/demo các chức năng cài đặt (không dùng Firebase)
+  ============================================================
+  
+  HƯỚNG DẪN SỬ DỤNG:
+  1. Đây là trang TEST, dữ liệu KHÔNG được lưu vào Firebase
+  2. Dùng để kiểm tra giao diện và chức năng trước khi áp dụng
+  
+  CÁC CHỨC NĂNG:
+  - Ngưỡng dòng điện: Kéo slider từ 0-100A
+  - Âm thanh cảnh báo: Bật/tắt và chọn file âm thanh tùy chỉnh
+  - Chốt điện nước: Chọn ngày giờ chốt
+  
+  LƯU Ý:
+  - Nút "Lưu cài đặt" chỉ hiển thị log, không lưu vào database
+  - Nút "Nghe thử" để test file âm thanh đã chọn
+-->
 <html lang="vi">
-<head>
-<meta charset="UTF-8">
-<title>Cài đặt hệ thống</title>
-<link rel="stylesheet" href="test.css">
-</head>
+  <head>
+    <!-- Meta charset UTF-8 để hỗ trợ tiếng Việt -->
+    <meta charset="UTF-8" />
+    <title>Cài đặt hệ thống</title>
+    <!-- CSS cho trang test -->
+    <link rel="stylesheet" href="test.css" />
+  </head>
 
-<body>
-
-<!-- NGƯỠNG -->
-<div class="card">
-    <h3>Ngưỡng dòng điện cảnh báo</h3>
-    <div class="row">
-        <input type="range" min="0" max="100" value="10" id="range">
+  <body>
+    <!-- 
+  CARD 1: NGƯỠNG DÒNG ĐIỆN CẢNH BÁO
+  - Slider test với phạm vi rộng: 0-100A
+  - Mặc định: 10A
+-->
+    <div class="card">
+      <h3>Ngưỡng dòng điện cảnh báo</h3>
+      <div class="row">
+        <!-- Slider ngưỡng: min=0A, max=100A, mặc định=10A -->
+        <input type="range" min="0" max="100" value="10" id="range" />
         <b><span id="rangeVal">10</span> A</b>
+      </div>
+      <div class="desc">Vượt ngưỡng sẽ ghi log và cảnh báo</div>
     </div>
-    <div class="desc">Vượt ngưỡng sẽ ghi log và cảnh báo</div>
-</div>
 
-<!-- ÂM THANH -->
-<div class="card">
-    <h3>Âm thanh cảnh báo</h3>
+    <!-- 
+  CARD 2: ÂM THANH CẢNH BÁO
+  - Toggle bật/tắt âm thanh
+  - Chọn file âm thanh tùy chỉnh từ máy tính
+  - Nút "Nghe thử" để test âm thanh
+-->
+    <div class="card">
+      <h3>Âm thanh cảnh báo</h3>
 
-    <div class="row">
+      <div class="row">
+        <!-- Toggle switch bật/tắt âm thanh -->
         <label class="toggle">
-            <input type="checkbox" id="sound">
-            <span class="slider"></span>
+          <input type="checkbox" id="sound" />
+          <span class="slider"></span>
         </label>
         <span id="soundText">Đang tắt</span>
-    </div>
+      </div>
 
-    <div class="row file-row">
-        <input type="file" id="audioFile" accept="audio/*">
+      <div class="row file-row">
+        <!-- Input chọn file âm thanh (chấp nhận mọi định dạng audio) -->
+        <input type="file" id="audioFile" accept="audio/*" />
+        <!-- Nút nghe thử âm thanh đã chọn -->
         <button onclick="playSound()">Nghe thử</button>
+      </div>
+
+      <!-- Element audio ẩn để phát âm thanh -->
+      <audio id="audio" hidden></audio>
     </div>
 
-    <audio id="audio" hidden></audio>
-</div>
-
-<!-- CHỐT -->
-<div class="card">
-    <h3>Chốt điện & nước hàng tháng</h3>
-    <div class="row">
-        <input type="date" id="date">
-        <input type="time" id="time">
+    <!-- 
+  CARD 3: CHỐT ĐIỆN NƯỚC HÀNG THÁNG
+  - Chọn ngày và giờ để chốt
+  - Preview hiển thị thời gian đã chọn
+-->
+    <div class="card">
+      <h3>Chốt điện & nước hàng tháng</h3>
+      <div class="row">
+        <!-- Input chọn ngày -->
+        <input type="date" id="date" />
+        <!-- Input chọn giờ -->
+        <input type="time" id="time" />
+      </div>
+      <!-- Preview thời gian đã chọn -->
+      <div class="desc" id="preview">Chưa chọn thời gian</div>
     </div>
-    <div class="desc" id="preview">Chưa chọn thời gian</div>
-</div>
 
-<!-- SAVE -->
-<div class="save">
-    <button onclick="save()">Lưu cài đặt</button>
-    <span class="log" id="log"></span>
-</div>
+    <!-- 
+  NÚT LƯU (TEST)
+  - Chỉ hiển thị log trên màn hình
+  - KHÔNG lưu vào database
+-->
+    <div class="save">
+      <button onclick="save()">Lưu cài đặt</button>
+      <!-- Log hiển thị kết quả -->
+      <span class="log" id="log"></span>
+    </div>
 
-<script>
-const range = document.getElementById("range");
-const rangeVal = document.getElementById("rangeVal");
-range.oninput = () => rangeVal.innerText = range.value;
+    <script>
+      const range = document.getElementById("range");
+      const rangeVal = document.getElementById("rangeVal");
+      range.oninput = () => (rangeVal.innerText = range.value);
 
-const sound = document.getElementById("sound");
-const soundText = document.getElementById("soundText");
-sound.onchange = () =>
-    soundText.innerText = sound.checked ? "Đang bật" : "Đang tắt";
+      const sound = document.getElementById("sound");
+      const soundText = document.getElementById("soundText");
+      sound.onchange = () =>
+        (soundText.innerText = sound.checked ? "Đang bật" : "Đang tắt");
 
-date.onchange = time.onchange = () => {
-    preview.innerText =
-        date.value && time.value
-        ? `Chốt vào ${date.value} – ${time.value}`
-        : "Chưa chọn thời gian";
-};
+      date.onchange = time.onchange = () => {
+        preview.innerText =
+          date.value && time.value
+            ? `Chốt vào ${date.value} – ${time.value}`
+            : "Chưa chọn thời gian";
+      };
 
-const audio = document.getElementById("audio");
-const audioFile = document.getElementById("audioFile");
+      const audio = document.getElementById("audio");
+      const audioFile = document.getElementById("audioFile");
 
-function playSound(){
-    if(!sound.checked){
-        alert("Bật âm thanh trước đã");
-        return;
-    }
-    if(!audioFile.files.length){
-        alert("Chưa chọn file âm thanh");
-        return;
-    }
-    audio.src = URL.createObjectURL(audioFile.files[0]);
-    audio.load();
-    audio.play();
-}
+      function playSound() {
+        if (!sound.checked) {
+          alert("Bật âm thanh trước đã");
+          return;
+        }
+        if (!audioFile.files.length) {
+          alert("Chưa chọn file âm thanh");
+          return;
+        }
+        audio.src = URL.createObjectURL(audioFile.files[0]);
+        audio.load();
+        audio.play();
+      }
 
-function save(){
-    log.innerText = `✔ Đã lưu: ${range.value}A | Âm thanh ${sound.checked?"ON":"OFF"}`;
-    setTimeout(()=>log.innerText="",3000);
-}
-</script>
-
-</body>
+      function save() {
+        log.innerText = `✔ Đã lưu: ${range.value}A | Âm thanh ${sound.checked ? "ON" : "OFF"}`;
+        setTimeout(() => (log.innerText = ""), 3000);
+      }
+    </script>
+  </body>
 </html>

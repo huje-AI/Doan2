@@ -1,24 +1,71 @@
 <!doctype html>
+<!--
+  ============================================================
+  FILE: setting.html
+  MÔ TẢ: Trang cài đặt hệ thống giám sát điện nước
+  ============================================================
+  
+  HƯỚNG DẪN SỬ DỤNG:
+  1. NGƯỠNG DÒNG ĐIỆN CẢNH BÁO:
+     - Kéo thanh slider để đặt ngưỡng (0 - 20A)
+     - Khi dòng điện vượt ngưỡng sẽ ghi log và phát âm thanh
+  
+  2. ĐIỆN ÁP CHUẨN:
+     - Đặt giá trị điện áp chuẩn để so sánh (thường là 220V)
+     - Phạm vi: 180V - 250V
+  
+  3. ÂM THANH CẢNH BÁO:
+     - Bật/tắt âm thanh khi có cảnh báo vượt ngưỡng
+  
+  4. CHỐT ĐIỆN NƯỚC HÀNG THÁNG:
+     - Chọn ngày và giờ để tự động chốt điện nước
+     - Hệ thống sẽ lưu dữ liệu vào lịch sử
+  
+  LƯU TRỮ FIREBASE:
+  - Tất cả cài đặt được lưu vào: users/{uid}/settings
+  - Các trường: current_threshold, voltage_standard, sound_enabled,
+                close_day, close_time, updated_at
+  
+  CÁC HÀM CHÍNH:
+  - save(): Lưu cài đặt vào Firebase
+  - Các event handler cho input (oninput, onchange)
+-->
 <html lang="vi">
   <head>
+    <!-- Meta charset UTF-8 để hỗ trợ tiếng Việt -->
     <meta charset="UTF-8" />
     <title>Cài đặt hệ thống</title>
+    <!-- CSS cho trang cài đặt -->
     <link rel="stylesheet" href="setting.css" />
   </head>
 
   <body>
+    <!-- 
+      CARD 1: NGƯỠNG DÒNG ĐIỆN CẢNH BÁO
+      - Slider điều chỉnh ngưỡng từ 0A đến 20A
+      - Step: 0.1A cho độ chính xác cao
+      - Khi dòng điện vượt ngưỡng sẽ phát cảnh báo
+    -->
     <div class="card">
       <h3>Ngưỡng dòng điện cảnh báo</h3>
       <div class="row">
+        <!-- Slider ngưỡng dòng điện: min=0A, max=20A, step=0.1A -->
         <input type="range" min="0" max="20" step="0.1" value="0" id="range" />
         <b><span id="rangeVal">10</span> A</b>
       </div>
       <div class="desc">Vượt ngưỡng sẽ ghi log và phát âm thanh</div>
     </div>
 
+    <!-- 
+      CARD 2: ĐIỆN ÁP CHUẨN
+      - Slider điều chỉnh điện áp chuẩn từ 180V đến 250V
+      - Mặc định: 220V (điện áp tiêu chuẩn Việt Nam)
+      - Dùng để so sánh với điện áp thực tế
+    -->
     <div class="card">
       <h3>⚡ Điện áp chuẩn (V)</h3>
       <div class="row">
+        <!-- Slider điện áp chuẩn: min=180V, max=250V, step=1V -->
         <input
           type="range"
           min="180"
@@ -32,29 +79,50 @@
       <div class="desc">Giá trị điện áp chuẩn để so sánh (thường là 220V)</div>
     </div>
 
+    <!-- 
+      CARD 3: ÂM THANH CẢNH BÁO
+      - Toggle switch bật/tắt âm thanh
+      - Khi bật, sẽ phát âm thanh khi có cảnh báo vượt ngưỡng
+    -->
     <div class="card">
       <h3>Âm thanh cảnh báo</h3>
 
       <div class="row">
+        <!-- Toggle switch cho âm thanh -->
         <label class="toggle">
           <input type="checkbox" id="sound" />
           <span class="slider"></span>
         </label>
+        <!-- Trạng thái hiện tại: Đang bật/tắt -->
         <span id="soundText">Đang tắt</span>
       </div>
     </div>
 
+    <!-- 
+      CARD 4: CHỐT ĐIỆN NƯỚC HÀNG THÁNG
+      - Chọn ngày và giờ để tự động chốt
+      - Khi đến thời gian, hệ thống sẽ lưu dữ liệu vào lịch sử
+    -->
     <div class="card">
       <h3>Chốt điện & nước hàng tháng</h3>
       <div class="row">
+        <!-- Input chọn ngày chốt -->
         <input type="date" id="date" />
+        <!-- Input chọn giờ chốt -->
         <input type="time" id="time" />
       </div>
+      <!-- Hiển thị preview thời gian đã chọn -->
       <div class="desc" id="preview">Chưa chọn thời gian</div>
     </div>
 
+    <!-- 
+      NÚT LƯU CÀI ĐẶT
+      - Nhấn để lưu tất cả cài đặt vào Firebase
+      - Hiển thị thông báo "Đã lưu cài đặt" khi thành công
+    -->
     <div class="save">
       <button onclick="save()">Lưu cài đặt</button>
+      <!-- Thông báo trạng thái lưu -->
       <span class="log" id="log"></span>
     </div>
 

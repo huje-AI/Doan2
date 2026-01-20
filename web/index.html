@@ -1,22 +1,59 @@
 <!doctype html>
+<!--
+  ============================================================
+  FILE: index.html
+  MÔ TẢ: Trang Dashboard chính của hệ thống giám sát điện nước
+  ============================================================
+  
+  HƯỚNG DẪN SỬ DỤNG:
+  1. Đây là trang chính của ứng dụng, hiển thị sidebar menu và iframe nội dung
+  2. Sử dụng Firebase Authentication để xác thực người dùng
+  3. Sidebar có thể mở rộng/thu nhỏ bằng cách click vào nút menu
+  4. Các trang con được load vào iframe: dien_nuoc.html, chart.html, setting.html
+  
+  CẤU TRÚC FILE:
+  - HEAD: Khai báo meta, title, CSS
+  - BODY:
+    + Toast thông báo đăng nhập thành công
+    + User Info (góc phải trên)
+    + Thông báo chốt điện nước hàng tháng
+    + Container chứa Sidebar và Main content
+  - SCRIPTS:
+    + Firebase SDK (App, Auth, Database)
+    + Các hàm xử lý: toggleSidebar, logout, notification...
+-->
 <html lang="vi">
   <head>
+    <!-- Meta charset UTF-8 để hỗ trợ tiếng Việt -->
     <meta charset="UTF-8" />
     <title>Dashboard</title>
+    <!-- CSS chính cho trang Dashboard -->
     <link rel="stylesheet" href="style.css" />
   </head>
 
   <body>
-    <!-- TOAST LOGIN SUCCESS -->
+    <!-- 
+      TOAST THÔNG BÁO ĐĂNG NHẬP THÀNH CÔNG
+      - Hiển thị khi người dùng đăng nhập thành công
+      - Tự động ẩn sau 3 giây
+      - Class 'show' được thêm bằng JavaScript để hiển thị toast
+    -->
     <div id="loginToast" class="toast">
       <img src="success.png" alt="success" />
       <span>Đăng nhập thành công</span>
     </div>
 
-    <!-- USER INFO TOP RIGHT -->
+    <!-- 
+      THÔNG TIN NGƯỜI DÙNG (góc phải trên màn hình)
+      - Hiển thị avatar, email và nút Logout
+      - Chỉ hiện khi đã đăng nhập (display: flex)
+      - Ẩn khi chưa đăng nhập (display: none)
+    -->
     <div id="userInfo" class="user-info">
       <img src="user.png" class="user-avatar" />
+      <!-- Email người dùng sẽ được cập nhật bằng JavaScript -->
       <span id="userEmail"></span>
+      <!-- Nút đăng xuất - gọi hàm logout() -->
       <button onclick="logout()">Logout</button>
     </div>
 
@@ -31,29 +68,39 @@
     </div>
 
     <div class="container">
-      <!-- SIDEBAR -->
+      <!-- 
+        SIDEBAR MENU (Thanh điều hướng bên trái)
+        - Class 'collapsed': Thu nhỏ sidebar, chỉ hiện icon
+        - Nhấn toggle-btn để mở rộng/thu nhỏ
+        - Các menu-item dẫn đến các trang khác nhau
+      -->
       <div class="sidebar collapsed" id="sidebar">
+        <!-- Nút toggle để mở/đóng sidebar -->
         <div class="toggle-btn" onclick="toggleSidebar()">
           <img src="menu.png" />
         </div>
 
-        <!-- LOGIN / REGISTER -->
+        <!-- Menu: Đăng nhập / Đăng ký - chuyển đến trang auth.html -->
         <div class="menu-item" onclick="window.location.href = 'auth.html'">
           <img src="user.png" />
           <span>Đăng nhập / Đăng ký</span>
         </div>
 
+        <!-- Menu: Quản lý điện nước - load trang dien_nuoc.html vào iframe -->
         <div class="menu-item" onclick="loadPage('dien_nuoc.html')">
           <img src="electric.png" />
           <span>Quản lý tiêu dùng điện nước</span>
         </div>
 
+        <!-- Menu: Đồ thị và thông báo - load trang chart.html vào iframe -->
         <div class="menu-item" onclick="loadPage('chart.html')">
           <img src="chart.png" />
           <span>Thông báo và đồ thị</span>
         </div>
 
+        <!-- Menu dưới cùng của sidebar -->
         <div class="menu-bottom">
+          <!-- Menu: Cài đặt - load trang setting.html vào iframe -->
           <div class="menu-item" onclick="loadPage('setting.html')">
             <img src="setting.jpg" />
             <span>Cài đặt</span>

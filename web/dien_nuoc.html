@@ -1,12 +1,52 @@
 <!doctype html>
+<!--
+  ============================================================
+  FILE: dien_nuoc.html
+  MÔ TẢ: Trang giám sát điện nước realtime và chốt điện nước hàng tháng
+  ============================================================
+  
+  HƯỚNG DẪN SỬ DỤNG:
+  1. GIÁM SÁT REALTIME (6 thẻ card):
+     - Điện năng (kWh): Tổng điện năng tiêu thụ
+     - Điện áp (V): Điện áp hiện tại, so sánh với điện áp chuẩn
+     - Dòng điện (A): Cường độ dòng điện
+     - Công suất (W): Công suất tiêu thụ
+     - Lưu lượng nước (mL/s): Tốc độ chảy nước
+     - Tổng nước (m³): Tổng lượng nước đã sử dụng
+  
+  2. CHỐT ĐIỆN NƯỚC HÀNG THÁNG:
+     - Hiển thị lịch chốt tiếp theo (từ cài đặt)
+     - Nút "Chốt ngay" để chốt thủ công
+     - Bảng so sánh giữa 2 tháng
+     - Lịch sử các lần chốt
+  
+  3. XU HƯỚNG (TREND):
+     - Hiển thị % thay đổi so với giá trị trước đó
+     - Mũi tên lên (xanh lá): Tăng
+     - Mũi tên xuống (đỏ): Giảm
+  
+  DỮ LIỆU FIREBASE:
+  - users/{uid}/: Dữ liệu realtime từ ESP32
+  - users/{uid}/logs/monthly: Lịch sử chốt điện nước
+  - users/{uid}/settings: Cài đặt điện áp chuẩn, lịch chốt
+-->
 <html lang="vi">
   <head>
+    <!-- Meta charset UTF-8 để hỗ trợ tiếng Việt -->
     <meta charset="UTF-8" />
     <title>Giám sát điện nước</title>
+    <!-- CSS cho trang giám sát điện nước -->
     <link rel="stylesheet" href="dien_nuoc.css" />
   </head>
   <body>
+    <!-- 
+      GRID HIỂN THỊ 6 THẺ CARD GIÁM SÁT REALTIME
+      - Mỗi card hiển thị một thông số từ cảm biến
+      - Dữ liệu được cập nhật realtime từ Firebase
+      - Phần trend hiển thị % thay đổi so với giá trị trước
+    -->
     <div class="grid">
+      <!-- Card 1: Điện năng tiêu thụ (kWh) -->
       <div class="card" id="energyCard">
         <div class="title">Điện năng</div>
         <div class="main-value">
@@ -16,6 +56,7 @@
         <div class="trend" id="energyTrend"></div>
       </div>
 
+      <!-- Card 2: Điện áp (V) - so sánh với điện áp chuẩn -->
       <div class="card" id="voltageCard">
         <div class="title">Điện áp</div>
         <div class="main-value">
@@ -25,6 +66,7 @@
         <div class="trend" id="voltageTrend"></div>
       </div>
 
+      <!-- Card 3: Dòng điện (A) -->
       <div class="card" id="currentCard">
         <div class="title">Dòng điện</div>
         <div class="main-value">
@@ -34,6 +76,7 @@
         <div class="trend" id="currentTrend"></div>
       </div>
 
+      <!-- Card 4: Công suất tiêu thụ (W) -->
       <div class="card" id="powerCard">
         <div class="title">Công suất</div>
         <div class="main-value">
@@ -43,6 +86,7 @@
         <div class="trend" id="powerTrend"></div>
       </div>
 
+      <!-- Card 5: Lưu lượng nước (mL/s) -->
       <div class="card" id="flowCard">
         <div class="title">Lưu lượng nước</div>
         <div class="main-value">
@@ -52,6 +96,7 @@
         <div class="trend" id="flowTrend"></div>
       </div>
 
+      <!-- Card 6: Tổng lượng nước đã sử dụng (m³) -->
       <div class="card" id="waterCard">
         <div class="title">Tổng nước</div>
         <div class="main-value">
