@@ -2,62 +2,32 @@
 <!--
   ============================================================
   FILE: index.html
-  MÔ TẢ: Trang Dashboard chính của hệ thống giám sát điện nước
+  MO TA: Trang Dashboard chinh cua he thong giam sat dien nuoc
   ============================================================
-  
-  HƯỚNG DẪN SỬ DỤNG:
-  1. Đây là trang chính của ứng dụng, hiển thị sidebar menu và iframe nội dung
-  2. Sử dụng Firebase Authentication để xác thực người dùng
-  3. Sidebar có thể mở rộng/thu nhỏ bằng cách click vào nút menu
-  4. Các trang con được load vào iframe: dien_nuoc.html, chart.html, setting.html
-  
-  CẤU TRÚC FILE:
-  - HEAD: Khai báo meta, title, CSS
-  - BODY:
-    + Toast thông báo đăng nhập thành công
-    + User Info (góc phải trên)
-    + Thông báo chốt điện nước hàng tháng
-    + Container chứa Sidebar và Main content
-  - SCRIPTS:
-    + Firebase SDK (App, Auth, Database)
-    + Các hàm xử lý: toggleSidebar, logout, notification...
 -->
 <html lang="vi">
   <head>
-    <!-- Meta charset UTF-8 để hỗ trợ tiếng Việt -->
     <meta charset="UTF-8" />
-    <title>Dashboard</title>
-    <!-- CSS chính cho trang Dashboard -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IoT Dashboard - Giám sát điện nước</title>
     <link rel="stylesheet" href="style.css" />
   </head>
 
   <body>
-    <!-- 
-      TOAST THÔNG BÁO ĐĂNG NHẬP THÀNH CÔNG
-      - Hiển thị khi người dùng đăng nhập thành công
-      - Tự động ẩn sau 3 giây
-      - Class 'show' được thêm bằng JavaScript để hiển thị toast
-    -->
+    <!-- TOAST THONG BAO DANG NHAP THANH CONG -->
     <div id="loginToast" class="toast">
       <img src="success.png" alt="success" />
       <span>Đăng nhập thành công</span>
     </div>
 
-    <!-- 
-      THÔNG TIN NGƯỜI DÙNG (góc phải trên màn hình)
-      - Hiển thị avatar, email và nút Logout
-      - Chỉ hiện khi đã đăng nhập (display: flex)
-      - Ẩn khi chưa đăng nhập (display: none)
-    -->
+    <!-- THONG TIN NGUOI DUNG -->
     <div id="userInfo" class="user-info">
       <img src="user.png" class="user-avatar" />
-      <!-- Email người dùng sẽ được cập nhật bằng JavaScript -->
       <span id="userEmail"></span>
-      <!-- Nút đăng xuất - gọi hàm logout() -->
-      <button onclick="logout()">Logout</button>
+      <button onclick="logout()">Đăng xuất</button>
     </div>
 
-    <!-- THÔNG BÁO CHỐT ĐIỆN NƯỚC -->
+    <!-- THONG BAO CHOT DIEN NUOC -->
     <div id="monthlyNotification" class="monthly-notification hidden">
       <div class="notif-icon">📊</div>
       <div class="notif-content">
@@ -68,40 +38,47 @@
     </div>
 
     <div class="container">
-      <!-- 
-        SIDEBAR MENU (Thanh điều hướng bên trái)
-        - Class 'collapsed': Thu nhỏ sidebar, chỉ hiện icon
-        - Nhấn toggle-btn để mở rộng/thu nhỏ
-        - Các menu-item dẫn đến các trang khác nhau
-      -->
+      <!-- SIDEBAR -->
       <div class="sidebar collapsed" id="sidebar">
-        <!-- Nút toggle để mở/đóng sidebar -->
+        <!-- Brand -->
+        <div class="sidebar-brand">
+          <div class="brand-icon">⚡</div>
+          <div class="brand-text">
+            <span class="brand-name">IoT Monitor</span>
+            <span class="brand-sub">Điện & Nước</span>
+          </div>
+        </div>
+
+        <!-- Toggle -->
         <div class="toggle-btn" onclick="toggleSidebar()">
           <img src="menu.png" />
         </div>
 
-        <!-- Menu: Đăng nhập / Đăng ký - chuyển đến trang auth.html -->
-        <div class="menu-item" onclick="window.location.href = 'auth.html'">
-          <img src="user.png" />
-          <span>Đăng nhập / Đăng ký</span>
+        <!-- Navigation -->
+        <div class="nav-section">
+          <div class="nav-label">Điều hướng</div>
+
+          <div class="menu-item active" id="nav-dien-nuoc" onclick="loadPage('dien_nuoc.html', this)">
+            <img src="electric.png" />
+            <span>Giám sát điện nước</span>
+          </div>
+
+          <div class="menu-item" id="nav-chart" onclick="loadPage('chart.html', this)">
+            <img src="chart.png" />
+            <span>Đồ thị & Thông báo</span>
+          </div>
+
+          <div class="nav-label">Tài khoản</div>
+
+          <div class="menu-item" onclick="window.location.href = 'auth.html'">
+            <img src="user.png" />
+            <span>Đăng nhập / Đăng ký</span>
+          </div>
         </div>
 
-        <!-- Menu: Quản lý điện nước - load trang dien_nuoc.html vào iframe -->
-        <div class="menu-item" onclick="loadPage('dien_nuoc.html')">
-          <img src="electric.png" />
-          <span>Quản lý tiêu dùng điện nước</span>
-        </div>
-
-        <!-- Menu: Đồ thị và thông báo - load trang chart.html vào iframe -->
-        <div class="menu-item" onclick="loadPage('chart.html')">
-          <img src="chart.png" />
-          <span>Thông báo và đồ thị</span>
-        </div>
-
-        <!-- Menu dưới cùng của sidebar -->
+        <!-- Menu Bottom -->
         <div class="menu-bottom">
-          <!-- Menu: Cài đặt - load trang setting.html vào iframe -->
-          <div class="menu-item" onclick="loadPage('setting.html')">
+          <div class="menu-item" id="nav-setting" onclick="loadPage('setting.html', this)">
             <img src="setting.jpg" />
             <span>Cài đặt</span>
           </div>
@@ -145,6 +122,14 @@
         document.getElementById("sidebar").classList.toggle("collapsed");
       }
 
+      /* ===== ACTIVE MENU ===== */
+      function setActiveMenu(el) {
+        document.querySelectorAll('.menu-item').forEach(item => {
+          item.classList.remove('active');
+        });
+        if (el) el.classList.add('active');
+      }
+
       /* ===== TOAST ===== */
       function showLoginSuccess() {
         const toast = document.getElementById("loginToast");
@@ -161,17 +146,14 @@
         const emailSpan = document.getElementById("userEmail");
 
         if (user) {
-          // ĐÃ ĐĂNG NHẬP
           emailSpan.innerText = user.email;
           userInfo.style.display = "flex";
 
-          // HIỆN TOAST 1 LẦN
           if (localStorage.getItem("loginSuccess") === "true") {
             showLoginSuccess();
             localStorage.removeItem("loginSuccess");
           }
         } else {
-          // CHƯA ĐĂNG NHẬP → VẪN Ở DASHBOARD
           userInfo.style.display = "none";
         }
       });
@@ -187,12 +169,11 @@
           });
       }
 
-      /* ===== NOTIFICATION CHỐT ĐIỆN NƯỚC ===== */
+      /* ===== NOTIFICATION CHOT DIEN NUOC ===== */
       function closeNotification() {
         const notif = document.getElementById("monthlyNotification");
         notif.classList.add("hidden");
 
-        // Đánh dấu đã đọc
         const user = firebase.auth().currentUser;
         if (user) {
           firebase
@@ -221,7 +202,6 @@
 
             notifEl.classList.remove("hidden");
 
-            // Tự động ẩn sau 10 giây
             setTimeout(() => {
               notifEl.classList.add("hidden");
               firebase
@@ -237,7 +217,6 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <script>
-      // Khởi tạo kiểm tra thông báo sau khi đăng nhập
       firebase.auth().onAuthStateChanged((user) => {
         if (user) {
           checkMonthlyNotification();
@@ -246,12 +225,13 @@
     </script>
 
     <script>
-      let currentPage = "dien_nuoc.html"; // 👈 trang mặc định
+      let currentPage = "dien_nuoc.html";
 
-      function loadPage(page) {
-        if (currentPage === page) return; // 👈 không reload nếu đang ở trang đó
+      function loadPage(page, el) {
+        if (currentPage === page) return;
         currentPage = page;
         document.getElementById("contentFrame").src = page;
+        if (el) setActiveMenu(el);
       }
     </script>
   </body>

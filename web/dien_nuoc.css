@@ -1,84 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 body {
   min-height: 100vh;
-  padding: 40px;
-
-  background-image: url("bg_dep.jpg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-attachment: fixed;
+  padding: 28px;
+  background: #f1f5f9;
 }
 
+/* ===== PAGE HEADER ===== */
+.page-header {
+  margin-bottom: 28px;
+}
+
+.page-header h1 {
+  font-size: 26px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.5px;
+}
+
+.page-header p {
+  color: #64748b;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+/* ===== GRID CARDS ===== */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
 }
 
 .card {
-  background: rgba(255, 255, 255, 0.92); /* trắng mờ */
-  border-radius: 18px;
+  background: #ffffff;
+  border-radius: 16px;
   padding: 22px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
-
-  backdrop-filter: blur(4px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #e2e8f0, #cbd5e1);
+  transition: background 0.3s;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+/* Card color accents */
+#energyCard::before { background: linear-gradient(90deg, #f59e0b, #f97316); }
+#voltageCard::before { background: linear-gradient(90deg, #ef4444, #f43f5e); }
+#currentCard::before { background: linear-gradient(90deg, #8b5cf6, #a855f7); }
+#powerCard::before { background: linear-gradient(90deg, #3b82f6, #2563eb); }
+#flowCard::before { background: linear-gradient(90deg, #06b6d4, #0891b2); }
+#waterCard::before { background: linear-gradient(90deg, #10b981, #059669); }
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+#energyCard .card-icon { background: #fef3c7; }
+#voltageCard .card-icon { background: #fee2e2; }
+#currentCard .card-icon { background: #ede9fe; }
+#powerCard .card-icon { background: #dbeafe; }
+#flowCard .card-icon { background: #cffafe; }
+#waterCard .card-icon { background: #d1fae5; }
+
 .title {
-  font-size: 14px;
-  color: #6b7280;
-  margin-bottom: 10px;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .main-value {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 6px;
+  margin-top: 4px;
 }
 
 .number {
-  font-size: 36px;
-  font-weight: 700;
+  font-size: 32px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -1px;
 }
 
 .unit {
-  font-size: 16px;
-  color: #6b7280;
+  font-size: 14px;
+  color: #94a3b8;
+  font-weight: 600;
 }
 
 .trend {
-  margin-top: 8px;
-  font-size: 14px;
-  font-weight: 500;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 8px;
+  display: inline-block;
 }
 
-/* TĂNG */
-.card.up .number,
+/* Trend states */
+.card.up .number { color: #16a34a; }
 .card.up .trend {
   color: #16a34a;
+  background: #f0fdf4;
 }
 
-/* GIẢM */
-.card.down .number,
+.card.down .number { color: #dc2626; }
 .card.down .trend {
   color: #dc2626;
+  background: #fef2f2;
 }
 
-/* ========== PHẦN CHỐT ĐIỆN NƯỚC THÁNG ========== */
+/* ========== MONTHLY SECTION ========== */
 .monthly-section {
-  margin-top: 40px;
-  background: rgba(255, 255, 255, 0.95);
+  margin-top: 32px;
+  background: #ffffff;
   border-radius: 20px;
-  padding: 30px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
-  backdrop-filter: blur(4px);
+  padding: 28px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2e8f0;
 }
 
 .monthly-header {
@@ -86,39 +162,41 @@ body {
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
-  gap: 20px;
+  margin-bottom: 28px;
+  gap: 16px;
 }
 
 .monthly-header h2 {
-  color: #1f2937;
-  font-size: 24px;
+  color: #0f172a;
+  font-size: 22px;
+  font-weight: 700;
 }
 
-/* Schedule Info - Hiển thị lịch chốt */
+/* Schedule Info */
 .schedule-info {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: linear-gradient(135deg, #eff6ff, #dbeafe);
-  padding: 12px 20px;
+  background: #f0f9ff;
+  padding: 10px 18px;
   border-radius: 12px;
-  border-left: 4px solid #3b82f6;
+  border: 1px solid #bae6fd;
 }
 
 .schedule-label {
   font-weight: 500;
-  color: #4b5563;
+  color: #475569;
+  font-size: 13px;
 }
 
 .schedule-time {
   font-weight: 700;
-  color: #1e40af;
-  font-size: 16px;
+  color: #1d4ed8;
+  font-size: 14px;
 }
 
 .schedule-status {
-  margin-left: 8px;
+  margin-left: 4px;
 }
 
 .status-pending {
@@ -126,7 +204,7 @@ body {
   color: #92400e;
   padding: 4px 12px;
   border-radius: 20px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -135,7 +213,7 @@ body {
   color: #065f46;
   padding: 4px 12px;
   border-radius: 20px;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -143,38 +221,38 @@ body {
   color: #3b82f6;
   text-decoration: none;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .link-setting:hover {
   text-decoration: underline;
 }
 
-/* Header actions - chứa schedule info và nút chốt ngay */
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
-/* Nút chốt ngay */
+/* Button styles */
 .btn-chot-ngay {
   background: linear-gradient(135deg, #f59e0b, #d97706);
   color: white;
   border: none;
-  padding: 12px 24px;
+  padding: 10px 22px;
   border-radius: 12px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
+  font-family: inherit;
   cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
 }
 
 .btn-chot-ngay:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
 }
 
 .btn-chot-ngay:active {
@@ -190,16 +268,18 @@ body {
 
 .month-selector label {
   font-weight: 500;
-  color: #4b5563;
+  color: #475569;
+  font-size: 14px;
 }
 
 .month-selector input[type="month"] {
-  padding: 10px 16px;
-  border: 2px solid #e5e7eb;
+  padding: 10px 14px;
+  border: 2px solid #e2e8f0;
   border-radius: 10px;
-  font-size: 15px;
+  font-size: 14px;
+  font-family: inherit;
   outline: none;
-  transition: border-color 0.3s;
+  transition: border-color 0.2s;
 }
 
 .month-selector input[type="month"]:focus {
@@ -210,36 +290,38 @@ body {
   background: linear-gradient(135deg, #3b82f6, #1d4ed8);
   color: white;
   border: none;
-  padding: 12px 24px;
+  padding: 10px 22px;
   border-radius: 10px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
+  font-family: inherit;
   cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
 }
 
 .btn-chot:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
 }
 
-/* Bảng so sánh */
+/* ===== COMPARISON ===== */
 .comparison-container {
-  margin-bottom: 30px;
+  margin-bottom: 28px;
 }
 
 .comparison-container h3 {
-  color: #1f2937;
-  margin-bottom: 20px;
-  font-size: 20px;
+  color: #0f172a;
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .comparison-selectors {
   display: flex;
   align-items: center;
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: 16px;
+  margin-bottom: 16px;
   flex-wrap: wrap;
 }
 
@@ -251,19 +333,21 @@ body {
 
 .selector-group label {
   font-weight: 500;
-  color: #4b5563;
+  color: #475569;
+  font-size: 14px;
 }
 
 .selector-group select {
-  padding: 10px 16px;
-  border: 2px solid #e5e7eb;
+  padding: 10px 14px;
+  border: 2px solid #e2e8f0;
   border-radius: 10px;
   font-size: 14px;
+  font-family: inherit;
   outline: none;
-  min-width: 160px;
+  min-width: 150px;
   background: white;
   cursor: pointer;
-  transition: border-color 0.3s;
+  transition: border-color 0.2s;
 }
 
 .selector-group select:focus {
@@ -274,51 +358,63 @@ body {
   background: linear-gradient(135deg, #10b981, #059669);
   color: white;
   border: none;
-  padding: 12px 24px;
+  padding: 10px 22px;
   border-radius: 10px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
+  font-family: inherit;
   cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
 }
 
 .btn-compare:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
 }
 
+/* ===== TABLE ===== */
 .comparison-table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   margin-bottom: 20px;
-  background: white;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
 }
 
 .comparison-table th,
 .comparison-table td {
-  padding: 16px 20px;
+  padding: 14px 18px;
   text-align: center;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .comparison-table th {
-  background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+  background: #f8fafc;
   font-weight: 600;
-  color: #374151;
-  font-size: 14px;
+  color: #475569;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .comparison-table td {
-  font-size: 15px;
-  color: #1f2937;
+  font-size: 14px;
+  color: #1e293b;
+}
+
+.comparison-table tbody tr {
+  transition: background 0.15s;
 }
 
 .comparison-table tbody tr:hover {
-  background: #f9fafb;
+  background: #f8fafc;
+}
+
+.comparison-table tbody tr:last-child td {
+  border-bottom: none;
 }
 
 .comparison-table td.increase {
@@ -331,89 +427,81 @@ body {
   font-weight: 600;
 }
 
-.status-up {
-  color: #dc2626;
-  font-weight: 600;
-}
-
-.status-down {
-  color: #16a34a;
-  font-weight: 600;
-}
-
-.status-equal {
-  color: #6b7280;
-  font-weight: 500;
-}
+.status-up { color: #dc2626; font-weight: 600; }
+.status-down { color: #16a34a; font-weight: 600; }
+.status-equal { color: #94a3b8; font-weight: 500; }
 
 .comparison-summary {
-  background: linear-gradient(135deg, #eff6ff, #dbeafe);
+  background: #f0f9ff;
   border-radius: 12px;
-  padding: 20px;
-  border-left: 4px solid #3b82f6;
+  padding: 18px 22px;
+  border: 1px solid #bae6fd;
 }
 
 .comparison-summary h4 {
-  color: #1e40af;
-  margin-bottom: 12px;
-}
-
-.comparison-summary p {
-  color: #1f2937;
-  margin: 8px 0;
+  color: #1d4ed8;
+  margin-bottom: 10px;
   font-size: 15px;
 }
 
-/* Lịch sử chốt */
+.comparison-summary p {
+  color: #334155;
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+/* ===== HISTORY ===== */
 .history-container h3 {
-  color: #1f2937;
-  margin-bottom: 20px;
-  font-size: 20px;
+  color: #0f172a;
+  margin-bottom: 16px;
+  font-size: 18px;
+  font-weight: 700;
 }
 
 .history-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
 }
 
 .history-item {
-  background: white;
+  background: #ffffff;
   border-radius: 12px;
-  padding: 18px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
   border-left: 4px solid #3b82f6;
   position: relative;
-  transition: all 0.3s;
+  transition: all 0.2s;
 }
 
 .history-item:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
 }
 
 .history-month {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
-  color: #1f2937;
-  margin-bottom: 10px;
+  color: #0f172a;
+  margin-bottom: 8px;
 }
 
 .history-details {
   display: flex;
-  gap: 20px;
-  margin-bottom: 8px;
+  gap: 16px;
+  margin-bottom: 6px;
 }
 
 .history-details span {
-  font-size: 15px;
-  color: #4b5563;
+  font-size: 14px;
+  color: #475569;
   font-weight: 500;
 }
 
 .history-time {
-  font-size: 13px;
-  color: #9ca3af;
+  font-size: 12px;
+  color: #94a3b8;
 }
 
 .btn-delete {
@@ -422,10 +510,10 @@ body {
   right: 12px;
   background: none;
   border: none;
-  font-size: 18px;
+  font-size: 16px;
   cursor: pointer;
-  opacity: 0.5;
-  transition: opacity 0.3s;
+  opacity: 0.4;
+  transition: opacity 0.2s;
 }
 
 .btn-delete:hover {
@@ -433,21 +521,31 @@ body {
 }
 
 .no-data {
-  color: #9ca3af;
+  color: #94a3b8;
   font-style: italic;
   text-align: center;
   padding: 30px;
+  font-size: 14px;
 }
 
-/* Responsive */
+/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
+  body {
+    padding: 16px;
+  }
+
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+
   .monthly-header {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .month-selector {
-    width: 100%;
+  .monthly-section {
+    padding: 20px;
   }
 
   .comparison-selectors {
@@ -463,12 +561,13 @@ body {
     flex: 1;
   }
 
-  .comparison-table {
-    font-size: 13px;
-  }
-
   .comparison-table th,
   .comparison-table td {
-    padding: 12px 8px;
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  .number {
+    font-size: 26px;
   }
 }

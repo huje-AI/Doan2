@@ -1,45 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: Arial, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-html,
-body {
+html, body {
   width: 100%;
-  height: 100%;
+  min-height: 100%;
 }
 
-/* background cho phần chart */
 body {
-  background-image: url("bg_dep.png");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  padding: 24px;
+  background: #f1f5f9;
+  padding: 28px;
 }
 
-/* container chứa các chart */
-.chart-container {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-}
-
-/* KHUNG CHART - wrapper */
+/* ===== CHART WRAPPER ===== */
 .chart-wrapper {
   width: 100%;
-  height: 500px;
-
-  background: rgba(255, 255, 255, 0.95);
+  height: 420px;
+  background: #ffffff;
   border-radius: 20px;
   padding: 24px;
-
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-
-  backdrop-filter: blur(6px);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2e8f0;
 }
 
 .chart-wrapper canvas {
@@ -47,83 +33,76 @@ body {
   height: 100% !important;
 }
 
-/* KHUNG CHART DUY NHẤT */
+/* CHART BOX */
 .chart-box {
   width: 100%;
   height: 360px;
-
-  background: rgba(255, 255, 255, 0.92);
+  background: #ffffff;
   border-radius: 18px;
-  padding: 16px;
-
-  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-
-  backdrop-filter: blur(6px);
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
 }
 
-/* canvas full khung */
 .chart-box canvas {
   width: 100% !important;
   height: 100% !important;
 }
 
+/* LOG WRAPPER */
 .log-wrapper {
-  margin-top: 24px;
+  margin-top: 20px;
   max-height: 300px;
-
-  background: rgba(255, 255, 255, 0.92);
+  background: #ffffff;
   border-radius: 18px;
-  padding: 16px;
-
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
 }
 
 .log-header {
-  font-weight: 600;
-  margin-bottom: 12px;
-  color: #111827;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: #0f172a;
+  font-size: 16px;
 }
 
 .log-box {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-
+  gap: 10px;
   max-height: 230px;
   overflow-y: auto;
 }
 
 .log-msg {
   align-self: flex-start;
-  background: #e5e7eb;
-  padding: 10px 14px;
-  border-radius: 14px;
+  background: #f1f5f9;
+  padding: 10px 16px;
+  border-radius: 12px;
   max-width: 80%;
   font-size: 14px;
-  color: #111827;
+  color: #1e293b;
+  border: 1px solid #e2e8f0;
 }
 
 .log-time {
   font-size: 12px;
-  color: #6b7280;
+  color: #94a3b8;
   margin-bottom: 4px;
 }
 
 /* ================= NOTIFICATION UI ================= */
-
 .noti-container {
   margin-top: 24px;
   max-width: 720px;
   margin-left: auto;
   margin-right: auto;
-
-  background: rgba(255, 255, 255, 0.95);
-  border-radius: 18px;
-  padding: 20px;
-
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.25);
-  backdrop-filter: blur(6px);
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e2e8f0;
 }
 
 .noti-header {
@@ -140,16 +119,20 @@ body {
 }
 
 .noti-header h2 {
-  font-size: 20px;
-  color: #111827;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 .badge {
-  background: #2563eb;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
   color: #fff;
-  font-size: 13px;
-  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
   border-radius: 999px;
+  min-width: 24px;
+  text-align: center;
 }
 
 .header-buttons {
@@ -160,13 +143,18 @@ body {
 .noti-header button {
   background: none;
   border: none;
-  color: #2563eb;
-  font-size: 14px;
+  color: #3b82f6;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
   cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: background 0.2s;
 }
 
 .noti-header button:hover {
-  text-decoration: underline;
+  background: #f1f5f9;
 }
 
 .noti-header .delete-all-btn {
@@ -174,78 +162,80 @@ body {
 }
 
 .noti-header .delete-all-btn:hover {
-  color: #dc2626;
+  background: #fef2f2;
 }
 
 .noti-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  max-height: 240px;
+  gap: 8px;
+  max-height: 340px;
   overflow-y: auto;
-  padding-right: 8px;
+  padding-right: 4px;
 }
 
-/* Scrollbar đẹp cho notification */
+/* Custom scrollbar */
 .noti-list::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 
 .noti-list::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
+  background: transparent;
 }
 
 .noti-list::-webkit-scrollbar-thumb {
-  background: #c5c5c5;
+  background: #cbd5e1;
   border-radius: 10px;
 }
 
 .noti-list::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #94a3b8;
 }
 
 .noti-item {
   display: flex;
-  gap: 14px;
-  padding: 14px;
-  border-radius: 14px;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: all 0.15s;
+  position: relative;
+  border: 1px solid transparent;
 }
 
 .noti-item.unread {
-  background: #eef2ff;
+  background: #f0f9ff;
+  border-color: #bae6fd;
 }
 
 .noti-item:hover {
-  background: #e5e7eb;
+  background: #f8fafc;
+  border-color: #e2e8f0;
 }
 
 .dot {
   width: 16px;
-  color: #2563eb;
-  font-size: 12px;
-  line-height: 20px;
+  color: #3b82f6;
+  font-size: 10px;
+  line-height: 22px;
+  flex-shrink: 0;
 }
 
 .content {
   flex: 1;
+  min-width: 0;
 }
 
 .text {
-  font-size: 15px;
-  color: #111827;
-  line-height: 1.4;
+  font-size: 14px;
+  color: #1e293b;
+  line-height: 1.5;
 }
 
 .time {
-  font-size: 13px;
-  color: #6b7280;
+  font-size: 12px;
+  color: #94a3b8;
   margin-top: 4px;
-}
-.noti-item {
-  position: relative;
 }
 
 .noti-item .del {
@@ -256,5 +246,47 @@ body {
   background: none;
   color: #ef4444;
   cursor: pointer;
+  font-size: 13px;
+  opacity: 0;
+  transition: opacity 0.2s;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.noti-item:hover .del {
+  opacity: 1;
+}
+
+.noti-item .del:hover {
+  background: #fef2f2;
+}
+
+/* Empty state */
+.noti-empty {
+  text-align: center;
+  padding: 40px;
+  color: #94a3b8;
   font-size: 14px;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+  body {
+    padding: 16px;
+  }
+
+  .chart-wrapper {
+    height: 300px;
+    padding: 16px;
+  }
+
+  .noti-container {
+    padding: 16px;
+  }
+
+  .noti-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
 }

@@ -1,115 +1,254 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 body {
-    height: 100vh;
-
-    background-image: url("bg_dep.jpg");
-    background-size: cover;        /* phủ kín màn hình */
-    background-position: center;   /* canh giữa */
-    background-repeat: no-repeat;
-    background-attachment: fixed;  /* đứng yên khi scroll */
-
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  min-height: 100vh;
+  background: #0f172a;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
 }
 
+/* Animated background */
+body::before {
+  content: '';
+  position: absolute;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.15), transparent 70%);
+  top: -100px;
+  right: -100px;
+  border-radius: 50%;
+  animation: float1 8s ease-in-out infinite;
+}
+
+body::after {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgba(6, 182, 212, 0.12), transparent 70%);
+  bottom: -100px;
+  left: -100px;
+  border-radius: 50%;
+  animation: float2 10s ease-in-out infinite;
+}
+
+@keyframes float1 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-30px, 30px); }
+}
+
+@keyframes float2 {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(30px, -20px); }
+}
+
+.auth-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  padding: 20px;
+}
 
 .auth-box {
-    width: 380px;
-    padding: 35px;
-    background: #020617;
-    border-radius: 16px;
-    color: #fff;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  width: 100%;
+  padding: 40px 36px;
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  color: #fff;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Brand header */
+.auth-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.auth-brand-icon {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, #3b82f6, #06b6d4);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  margin-bottom: 16px;
+  box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3);
+}
+
+.auth-brand-name {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  background: linear-gradient(135deg, #f1f5f9, #94a3b8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .auth-box h2 {
-    text-align: center;
-    margin-bottom: 25px;
+  text-align: center;
+  margin-bottom: 8px;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.auth-subtitle {
+  text-align: center;
+  color: #64748b;
+  font-size: 14px;
+  margin-bottom: 28px;
+}
+
+/* Input fields */
+.input-group {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.input-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  opacity: 0.5;
 }
 
 .auth-box input {
-    width: 100%;
-    padding: 14px;
-    margin-bottom: 16px;
-    border-radius: 8px;
-    border: none;
+  width: 100%;
+  padding: 14px 16px 14px 46px;
+  border-radius: 12px;
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.6);
+  color: #f1f5f9;
+  font-size: 15px;
+  font-family: inherit;
+  transition: all 0.3s;
+  outline: none;
 }
 
+.auth-box input::placeholder {
+  color: #64748b;
+}
+
+.auth-box input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Submit button */
 .auth-box button {
-    width: 100%;
-    padding: 14px;
-    border-radius: 8px;
-    border: none;
-    background: #2563eb;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-top: 8px;
 }
 
 .auth-box button:hover {
-    background: #1d4ed8;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.35);
 }
 
+.auth-box button:active {
+  transform: translateY(0);
+}
+
+/* Switch link */
 .switch, .back {
-    margin-top: 16px;
-    text-align: center;
-    font-size: 14px;
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #94a3b8;
 }
 
 .switch span {
-    color: #60a5fa;
-    cursor: pointer;
+  color: #60a5fa;
+  cursor: pointer;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.switch span:hover {
+  color: #93c5fd;
 }
 
 .back a {
-    color: #9ca3af;
-    text-decoration: none;
+  color: #9ca3af;
+  text-decoration: none;
 }
 
-/* nút back góc trái */
+/* Back button */
 .back-btn {
-    position: fixed;
-    top: 20px;
-    left: 20px;
-
-    width: 42px;
-    height: 42px;
-
-    background: rgba(0, 0, 0, 0.4);
-    border-radius: 10px;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    cursor: pointer;
-    transition: background 0.2s;
+  position: fixed;
+  top: 24px;
+  left: 24px;
+  width: 44px;
+  height: 44px;
+  background: rgba(30, 41, 59, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 10;
 }
 
 .back-btn img {
-    width: 22px;
-    height: 22px;
+  width: 20px;
+  height: 20px;
+  filter: brightness(0) invert(0.7);
 }
 
 .back-btn:hover {
-    background: rgba(0, 0, 0, 0.6);
+  background: rgba(30, 41, 59, 1);
+  transform: translateY(-2px);
 }
 
-/* ===== ERROR MESSAGE ===== */
+/* Error message */
 .error-msg {
-    margin-top: 8px;
-    font-size: 13px;
-    color: #ef4444;      /* đỏ */
-    text-align: left;
-    min-height: 16px;    /* giữ layout không giật */
+  margin-top: 4px;
+  margin-bottom: 4px;
+  font-size: 13px;
+  color: #f87171;
+  text-align: left;
+  min-height: 18px;
+  padding: 0 4px;
 }
 
+/* Responsive */
+@media (max-width: 480px) {
+  .auth-container {
+    padding: 16px;
+  }
 
-
+  .auth-box {
+    padding: 32px 24px;
+  }
+}

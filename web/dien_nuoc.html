@@ -34,6 +34,7 @@
   <head>
     <!-- Meta charset UTF-8 để hỗ trợ tiếng Việt -->
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Giám sát điện nước</title>
     <!-- CSS cho trang giám sát điện nước -->
     <link rel="stylesheet" href="dien_nuoc.css" />
@@ -45,10 +46,19 @@
       - Dữ liệu được cập nhật realtime từ Firebase
       - Phần trend hiển thị % thay đổi so với giá trị trước
     -->
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1>Giám sát điện nước</h1>
+      <p>Dữ liệu realtime từ cảm biến IoT</p>
+    </div>
+
     <div class="grid">
       <!-- Card 1: Điện năng tiêu thụ (kWh) -->
       <div class="card" id="energyCard">
-        <div class="title">Điện năng</div>
+        <div class="card-header">
+          <div class="card-icon">⚡</div>
+          <div class="title">Điện năng</div>
+        </div>
         <div class="main-value">
           <span class="number" id="energy">0</span>
           <span class="unit">kWh</span>
@@ -58,7 +68,10 @@
 
       <!-- Card 2: Điện áp (V) - so sánh với điện áp chuẩn -->
       <div class="card" id="voltageCard">
-        <div class="title">Điện áp</div>
+        <div class="card-header">
+          <div class="card-icon">🔴</div>
+          <div class="title">Điện áp</div>
+        </div>
         <div class="main-value">
           <span class="number" id="voltage">0</span>
           <span class="unit">V</span>
@@ -68,7 +81,10 @@
 
       <!-- Card 3: Dòng điện (A) -->
       <div class="card" id="currentCard">
-        <div class="title">Dòng điện</div>
+        <div class="card-header">
+          <div class="card-icon">🟣</div>
+          <div class="title">Dòng điện</div>
+        </div>
         <div class="main-value">
           <span class="number" id="current">0</span>
           <span class="unit">A</span>
@@ -78,7 +94,10 @@
 
       <!-- Card 4: Công suất tiêu thụ (W) -->
       <div class="card" id="powerCard">
-        <div class="title">Công suất</div>
+        <div class="card-header">
+          <div class="card-icon">🔵</div>
+          <div class="title">Công suất</div>
+        </div>
         <div class="main-value">
           <span class="number" id="power">0</span>
           <span class="unit">W</span>
@@ -88,7 +107,10 @@
 
       <!-- Card 5: Lưu lượng nước (mL/s) -->
       <div class="card" id="flowCard">
-        <div class="title">Lưu lượng nước</div>
+        <div class="card-header">
+          <div class="card-icon">💧</div>
+          <div class="title">Lưu lượng nước</div>
+        </div>
         <div class="main-value">
           <span class="number" id="flow">0</span>
           <span class="unit">mL/s</span>
@@ -98,7 +120,10 @@
 
       <!-- Card 6: Tổng lượng nước đã sử dụng (m³) -->
       <div class="card" id="waterCard">
-        <div class="title">Tổng nước</div>
+        <div class="card-header">
+          <div class="card-icon">🌊</div>
+          <div class="title">Tổng nước</div>
+        </div>
         <div class="main-value">
           <span class="number" id="water">0</span>
           <span class="unit">m³</span>

@@ -2,56 +2,49 @@
 <!--
   ============================================================
   FILE: auth.html
-  MÔ TẢ: Trang đăng nhập và đăng ký tài khoản Firebase
+  MO TA: Trang dang nhap va dang ky tai khoan Firebase
   ============================================================
-  
-  HƯỚNG DẪN SỬ DỤNG:
-  1. Người dùng có thể ĐĂNG NHẬP hoặc ĐĂNG KÝ tài khoản
-  2. Nhấn "Đăng ký" để chuyển đổi form đăng ký
-  3. Nhấn "Đăng nhập" để quay lại form đăng nhập
-  4. Sau khi đăng nhập thành công, tự động chuyển về index.html
-  
-  CÁC HÀM CHÍNH:
-  - switchForm(): Chuyển đổi giữa đăng nhập và đăng ký
-  - handleSubmit(): Xử lý khi nhấn nút submit
-  - registerUser(): Đăng ký tài khoản mới với Firebase Auth
-  - loginUser(): Đăng nhập với email và password
-  - showError(): Hiển thị thông báo lỗi
-  - clearError(): Xóa thông báo lỗi
-  
-  LƯU TRỮ LOCAL:
-  - loginSuccess: Đánh dấu đăng nhập thành công để hiện toast
-  - userEmail: Lưu email người dùng
-  - userUID: Lưu UID của Firebase user
 -->
 <html lang="vi">
   <head>
-    <!-- Meta charset UTF-8 để hỗ trợ tiếng Việt -->
     <meta charset="UTF-8" />
-    <title>Đăng nhập / Đăng ký</title>
-    <!-- CSS cho trang xác thực -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng nhập - IoT Monitor</title>
     <link rel="stylesheet" href="auth.css" />
   </head>
   <body>
-    <!-- Container chính chứa form đăng nhập/đăng ký -->
+    <!-- Back button -->
+    <a href="index.html" class="back-btn">
+      <img src="back.png" alt="back" />
+    </a>
+
     <div class="auth-container">
-      <!-- Box chứa các input và nút -->
       <div class="auth-box">
-        <!-- Tiêu đề form - thay đổi giữa "Đăng nhập" và "Đăng ký" -->
+        <!-- Brand -->
+        <div class="auth-brand">
+          <div class="auth-brand-icon">⚡</div>
+          <span class="auth-brand-name">IoT Monitor</span>
+        </div>
+
         <h2 id="title">Đăng nhập</h2>
+        <p class="auth-subtitle" id="subtitle">Đăng nhập để quản lý hệ thống giám sát</p>
 
-        <!-- Input email - bắt buộc có định dạng email hợp lệ -->
-        <input type="email" id="email" placeholder="Email" />
-        <!-- Input mật khẩu - ít nhất 6 ký tự theo yêu cầu Firebase -->
-        <input type="password" id="password" placeholder="Mật khẩu" />
+        <!-- Email input -->
+        <div class="input-group">
+          <span class="input-icon">📧</span>
+          <input type="email" id="email" placeholder="Email" />
+        </div>
 
-        <!-- Thông báo lỗi - hiển thị khi có lỗi đăng nhập/đăng ký -->
+        <!-- Password input -->
+        <div class="input-group">
+          <span class="input-icon">🔒</span>
+          <input type="password" id="password" placeholder="Mật khẩu" />
+        </div>
+
         <p id="errorMsg" class="error-msg"></p>
 
-        <!-- Nút submit - gọi handleSubmit() để xử lý đăng nhập/đăng ký -->
         <button id="submitBtn" onclick="handleSubmit()">Đăng nhập</button>
 
-        <!-- Link chuyển đổi giữa form đăng nhập và đăng ký -->
         <p class="switch">
           Chưa có tài khoản?
           <span onclick="switchForm()">Đăng ký</span>
@@ -78,7 +71,6 @@
       /* ===== UI STATE ===== */
       let isLogin = true;
 
-      /* ===== HIỂN THỊ / XÓA LỖI ===== */
       function showError(message) {
         document.getElementById("errorMsg").innerText = message;
       }
@@ -87,20 +79,23 @@
         document.getElementById("errorMsg").innerText = "";
       }
 
-      /* ===== CHUYỂN LOGIN / REGISTER ===== */
+      /* ===== SWITCH FORM ===== */
       function switchForm() {
         clearError();
 
         const title = document.getElementById("title");
+        const subtitle = document.getElementById("subtitle");
         const btn = document.getElementById("submitBtn");
         const sw = document.querySelector(".switch");
 
         if (isLogin) {
           title.innerText = "Đăng ký";
+          subtitle.innerText = "Tạo tài khoản mới để bắt đầu";
           btn.innerText = "Đăng ký";
           sw.innerHTML = `Đã có tài khoản? <span onclick="switchForm()">Đăng nhập</span>`;
         } else {
           title.innerText = "Đăng nhập";
+          subtitle.innerText = "Đăng nhập để quản lý hệ thống giám sát";
           btn.innerText = "Đăng nhập";
           sw.innerHTML = `Chưa có tài khoản? <span onclick="switchForm()">Đăng ký</span>`;
         }
@@ -126,7 +121,7 @@
         }
       }
 
-      /* ===== ĐĂNG KÝ ===== */
+      /* ===== REGISTER ===== */
       function registerUser(email, password) {
         firebase
           .auth()
@@ -151,7 +146,7 @@
           });
       }
 
-      /* ===== ĐĂNG NHẬP ===== */
+      /* ===== LOGIN ===== */
       function loginUser(email, password) {
         firebase
           .auth()
